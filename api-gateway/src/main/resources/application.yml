@@ -1,0 +1,57 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+      config:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+    gateway:
+      default-filters:
+        - AddRequestHeader=X-Trace-Id, ${traceId}
+      routes:
+        - id: content-service
+          uri: lb://content-service
+          predicates:
+            - Path=/api/admin/books/**,/api/admin/volumes/**,/api/admin/chapters/**
+        - id: asset-service
+          uri: lb://asset-service
+          predicates:
+            - Path=/api/admin/assets/**
+        - id: mapping-service
+          uri: lb://mapping-service
+          predicates:
+            - Path=/api/admin/mappings/**
+        - id: publish-service
+          uri: lb://publish-service
+          predicates:
+            - Path=/api/admin/reviews/**,/api/admin/publish/**
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/api/admin/search/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/admin/users/**,/api/admin/roles/**,/api/admin/permissions/**
+        - id: ops-service
+          uri: lb://ops-service
+          predicates:
+            - Path=/api/admin/ops/**
+        - id: chat-service
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/admin/chat/**
+        - id: monitor-service
+          uri: lb://monitor-service
+          predicates:
+            - Path=/api/admin/logs/**,/api/admin/monitor/**
+
+security:
+  jwt:
+    issuer-uri: ${JWT_ISSUER_URI:http://user-service}
+    jwk-set-uri: ${JWT_JWK_SET_URI:http://user-service/.well-known/jwks.json}

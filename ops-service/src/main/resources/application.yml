@@ -1,0 +1,17 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: ops-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+      config:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:gmrfid-auth}

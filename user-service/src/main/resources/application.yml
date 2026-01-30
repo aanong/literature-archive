@@ -1,0 +1,28 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/iot_cen?useSSL=false&serverTimezone=UTC}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+      config:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+
+security:
+  jwt:
+    issuer: ${JWT_ISSUER:gmrfid-auth}
+    secret: ${JWT_SECRET:change-me-in-prod}
+    expire-minutes: ${JWT_EXPIRE_MINUTES:120}

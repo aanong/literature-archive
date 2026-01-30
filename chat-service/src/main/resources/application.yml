@@ -1,0 +1,24 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: chat-service
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/iot_cen?useSSL=false&serverTimezone=UTC}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: none
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+      config:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:gmrfid-auth}
