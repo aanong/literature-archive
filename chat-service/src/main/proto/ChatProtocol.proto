@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package com.literature.chat.netty.protocol;
+
+option java_multiple_files = true;
+option java_package = "com.literature.chat.netty.protocol";
+option java_outer_classname = "ChatProtocol";
+
+// 消息类型
+enum CmdType {
+    UNKNOWN = 0;
+    HEARTBEAT = 1;      // 心跳
+    AUTH = 2;           // 认证
+    SINGLE_CHAT = 3;    // 单聊消息
+    GROUP_CHAT = 4;     // 群聊消息
+    ACK = 5;            // 消息回执
+    ERROR = 6;          // 错误响应
+}
+
+// 基础消息负载
+message ChatPayload {
+    CmdType cmd = 1;
+    int64 session_id = 2;   // 会话ID (单聊/群聊)
+    int64 sender_id = 3;    // 发送者ID
+    int64 target_id = 4;    // 接收者ID (用户或群组ID)
+    string content = 5;     // 消息内容
+    string content_type = 6;// 内容类型 (text, image, file)
+    int64 timestamp = 7;    // 时间戳
+    string extra = 8;       // 扩展字段 (JSON)
+}
+
+// 认证请求负载 (使用 content 字段传递 token)
+message AuthPayload {
+    string token = 1;
+    string device_id = 2;
+}
+
+// 认证响应
+message AuthResponse {
+    bool success = 1;
+    string message = 2;
+}

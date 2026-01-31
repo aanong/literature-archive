@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.literature.chat.mapper.ChatMuteMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.literature.chat.entity.ChatMute">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="user_id" property="userId"/>
+        <result column="muted_until" property="mutedUntil"/>
+        <result column="reason" property="reason"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, session_id, user_id, muted_until, reason, created_by, created_at
+    </sql>
+
+    <!-- 查询某会话中某用户的有效禁言记录 -->
+    <select id="selectActiveMute" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM chat_mutes
+        WHERE session_id = #{sessionId}
+          AND user_id = #{userId}
+          AND muted_until > #{now}
+        ORDER BY muted_until DESC
+        LIMIT 1
+    </select>
+
+    <!-- 检查用户在某会话中是否被禁言 -->
+    <select id="isUserMuted" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM chat_mutes
+        WHERE session_id = #{sessionId}
+          AND user_id = #{userId}
+          AND muted_until > #{now}
+    </select>
+
+    <!-- 查询某会话中所有有效的禁言记录 -->
+    <select id="selectActiveMutesBySessionId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM chat_mutes
+        WHERE session_id = #{sessionId}
+          AND muted_until > #{now}
+        ORDER BY muted_until DESC
+    </select>
+
+    <!-- 统计某会话的有效禁言数 -->
+    <select id="countActiveMutes" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM chat_mutes
+        WHERE session_id = #{sessionId}
+          AND muted_until > #{now}
+    </select>
+
+    <!-- 删除过期的禁言记录 -->
+    <delete id="deleteExpiredMutes">
+        DELETE FROM chat_mutes
+        WHERE muted_until &lt; #{before}
+    </delete>
+
+</mapper>

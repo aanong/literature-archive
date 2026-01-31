@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.literature.chat.mapper.ChatSessionMemberMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.literature.chat.entity.ChatSessionMember">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="user_id" property="userId"/>
+        <result column="role" property="role"/>
+        <result column="nickname" property="nickname"/>
+        <result column="joined_at" property="joinedAt"/>
+        <result column="last_read_at" property="lastReadAt"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, session_id, user_id, role, nickname, joined_at, last_read_at
+    </sql>
+
+    <!-- 根据会话ID查询所有成员 -->
+    <select id="selectBySessionId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM chat_session_members
+        WHERE session_id = #{sessionId}
+        ORDER BY joined_at ASC
+    </select>
+
+    <!-- 查询会话成员用户ID列表 -->
+    <select id="selectUserIdsBySessionId" resultType="java.lang.Long">
+        SELECT user_id
+        FROM chat_session_members
+        WHERE session_id = #{sessionId}
+    </select>
+
+    <!-- 统计会话成员数 -->
+    <select id="countBySessionId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM chat_session_members
+        WHERE session_id = #{sessionId}
+    </select>
+
+    <!-- 查询特定用户在会话中的成员记录 -->
+    <select id="selectBySessionIdAndUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM chat_session_members
+        WHERE session_id = #{sessionId}
+          AND user_id = #{userId}
+    </select>
+
+    <!-- 检查用户是否是会话成员 -->
+    <select id="existsBySessionIdAndUserId" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM chat_session_members
+        WHERE session_id = #{sessionId}
+          AND user_id = #{userId}
+    </select>
+
+    <!-- 删除会话成员 -->
+    <delete id="deleteBySessionIdAndUserId">
+        DELETE FROM chat_session_members
+        WHERE session_id = #{sessionId}
+          AND user_id = #{userId}
+    </delete>
+
+</mapper>

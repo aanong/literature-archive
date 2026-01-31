@@ -8,9 +8,15 @@ spring:
     url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/iot_cen?useSSL=false&serverTimezone=UTC}
     username: ${MYSQL_USER:root}
     password: ${MYSQL_PASSWORD:root}
-  jpa:
-    hibernate:
-      ddl-auto: none
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
   cloud:
     nacos:
       discovery:
@@ -21,4 +27,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:gmrfid-auth}
+          issuer-uri: ${JWT_ISSUER_URI:literature-auth}

@@ -14,7 +14,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:gmrfid-auth}
+          issuer-uri: ${JWT_ISSUER_URI:literature-auth}
 
 management:
   endpoints:
