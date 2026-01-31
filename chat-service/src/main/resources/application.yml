@@ -5,9 +5,9 @@ spring:
   application:
     name: chat-service
   datasource:
-    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/iot_cen?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/chat-service?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     username: ${MYSQL_USER:root}
-    password: ${MYSQL_PASSWORD:root}
+    password: ${MYSQL_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   cloud:
     nacos:
@@ -15,6 +15,10 @@ spring:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
       config:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        import-check:
+          enabled: false
+    config:
+      import: optional:nacos:chat-service.yml
   security:
       resourceserver:
         jwt:
