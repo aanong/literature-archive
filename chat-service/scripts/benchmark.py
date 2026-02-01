@@ -32,26 +32,43 @@ def encode_auth_payload(token):
     return payload
 
 def encode_chat_payload(timestamp, sender_id, target_id, content):
-    # message ChatPayload { int64 timestamp = 1; int64 senderId = 2; int64 targetId = 3; string content = 4; }
+    # message ChatPayload {
+    #     CmdType cmd = 1;
+    #     int64 session_id = 2;
+    #     int64 sender_id = 3;
+    #     int64 target_id = 4;
+    #     string content = 5;
+    #     string content_type = 6;
+    #     int64 timestamp = 7;
+    #     string extra = 8;
+    # }
     payload = bytearray()
     
-    # 1. timestamp (int64/varint) -> Tag 1 (0x08)
+    # 1. cmd (SINGLE_CHAT=3) -> Tag 1 (0x08)
     payload.append(0x08)
-    payload.extend(encode_varint(timestamp))
+    payload.extend(encode_varint(3))
     
-    # 2. senderId (int64/varint) -> Tag 2 (0x10)
+    # 2. session_id -> Tag 2 (0x10) - (optional, using target_id as proxy for now if needed, but let's just send 0)
     payload.append(0x10)
+    payload.extend(encode_varint(0))
+    
+    # 3. senderId (int64/varint) -> Tag 3 (0x18)
+    payload.append(0x18)
     payload.extend(encode_varint(sender_id))
     
-    # 3. targetId (int64/varint) -> Tag 3 (0x18)
-    payload.append(0x18)
+    # 4. targetId (int64/varint) -> Tag 4 (0x20) - (Note: field 4 int64 is 4<<3|0 = 32 = 0x20)
+    payload.append(0x20)
     payload.extend(encode_varint(target_id))
     
-    # 4. content (string) -> Tag 4 (0x22)
+    # 5. content (string) -> Tag 5 (0x2A) - (Note: field 5 string is 5<<3|2 = 42 = 0x2A)
     content_bytes = content.encode('utf-8')
-    payload.append(0x22)
+    payload.append(0x2A)
     payload.extend(encode_varint(len(content_bytes)))
     payload.extend(content_bytes)
+    
+    # 7. timestamp (int64/varint) -> Tag 7 (0x38) - (Note: field 7 int64 is 7<<3|0 = 56 = 0x38)
+    payload.append(0x38)
+    payload.extend(encode_varint(timestamp))
     
     return payload
 
@@ -75,7 +92,7 @@ def mock_client(client_id):
         
         # 1. Auth
         auth_body = encode_auth_payload(f'user:{client_id}')
-        s.sendall(encode_message(1, auth_body)) # Cmd 1 = Auth
+        s.sendall(encode_message(2, auth_body)) # Cmd 2 = Auth
         time.sleep(0.1)
         
         # 2. Send Messages
@@ -86,7 +103,7 @@ def mock_client(client_id):
                 target_id = 1
                 
             chat_body = encode_chat_payload(timestamp, client_id, target_id, f'Hello from {client_id} msg {i}')
-            s.sendall(encode_message(2, chat_body)) # Cmd 2 = Single Chat, 3 = Message
+            s.sendall(encode_message(3, chat_body)) # Cmd 3 = Single Chat
             time.sleep(0.1) 
             
         s.close()

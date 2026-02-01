@@ -1,0 +1,2 @@
+# Python 3.8+, no external dependencies (uses only stdlib)
+# The script uses asyncio for high concurrency
