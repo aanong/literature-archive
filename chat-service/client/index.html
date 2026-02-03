@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literature Archive Chat Client</title>
+    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        #chat-screen { display: none; flex-direction: column; height: 100%; }
+        
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 800px; margin: auto; display: flex; flex-direction: column; height: 100%; }
+        
+        h2 { margin-top: 0; color: #333; }
+        
+        input, button { padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        
+        #messages { flex: 1; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; background: #fafafa; border-radius: 4px; display: flex; flex-direction: column; gap: 8px; }
+        
+        .message { padding: 8px 12px; border-radius: 12px; max-width: 70%; word-wrap: break-word; }
+        .message.sent { align-self: flex-end; background-color: #dcf8c6; color: #000; }
+        .message.received { align-self: flex-start; background-color: #fff; border: 1px solid #ddd; }
+        .message.system { align-self: center; background-color: #eee; color: #666; font-size: 12px; }
+        
+        .input-area { display: flex; gap: 10px; }
+        .input-area input { flex: 1; }
+        
+        #status-bar { font-size: 12px; color: #888; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="container" style="height: auto;">
+            <h2>Login to Chat</h2>
+            <input type="text" id="user-id" placeholder="Enter User ID (e.g. 1001)">
+            <button onclick="login()">Connect</button>
+        </div>
+    </div>
+
+    <!-- Chat Screen -->
+    <div id="chat-screen">
+        <div class="container">
+            <div id="status-bar">Status: Disconnected</div>
+            <div id="messages"></div>
+            
+            <div class="input-area">
+                <input type="text" id="target-id" placeholder="Target ID (User/Group)" style="max-width: 150px;">
+                <input type="text" id="message-input" placeholder="Type a message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Protocol Constants
+        const MAGIC = 0xCAFE;
+        const VERSION = 1;
+        const SERIAL = 0;
+        
+        // Cmd Types
+        const CmdType = {
+            UNKNOWN: 0,
+            HEARTBEAT: 1,
+            AUTH: 2,
+            SINGLE_CHAT: 3,
+            GROUP_CHAT: 4,
+            ACK: 5,
+            ERROR: 6
+        };
+
+        let ws;
+        let root;
+        let AuthPayload, ChatPayload, NettyMessage;
+        let currentUserId;
+
+        // Load Protobuf
+        protobuf.load("ChatProtocol.proto", function(err, r) {
+            if (err) throw err;
+            root = r;
+            AuthPayload = root.lookupType("com.literature.chat.netty.protocol.AuthPayload");
+            ChatPayload = root.lookupType("com.literature.chat.netty.protocol.ChatPayload");
+        });
+
+        function login() {
+            const userId = document.getElementById('user-id').value;
+            if (!userId) return alert("Please enter User ID");
+            
+            currentUserId = parseInt(userId);
+            connect(userId);
+        }
+
+        function connect(userId) {
+            ws = new WebSocket('ws://localhost:8081');
+            ws.binaryType = 'arraybuffer';
+
+            ws.onopen = () => {
+                updateStatus("Connected via Proxy");
+                sendAuth(userId);
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('chat-screen').style.display = 'flex';
+                
+                // Start Heartbeat
+                setInterval(sendHeartbeat, 30000);
+            };
+
+            ws.onmessage = (event) => {
+                handleMessage(event.data);
+            };
+
+            ws.onclose = () => {
+                updateStatus("Disconnected");
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('chat-screen').style.display = 'none';
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket Error:", error);
+                updateStatus("Error");
+            };
+        }
+
+        function sendAuth(userId) {
+            const token = "user:" + userId;
+            const payload = AuthPayload.create({ token: token, deviceId: "web-client" });
+            const buffer = AuthPayload.encode(payload).finish();
+            
+            sendPacket(CmdType.AUTH, buffer);
+            addSystemMessage("Sent Auth Request...");
+        }
+
+        function sendMessage() {
+            const targetId = document.getElementById('target-id').value;
+            const content = document.getElementById('message-input').value;
+            
+            if (!targetId || !content) return;
+
+            const payload = ChatPayload.create({
+                cmd: CmdType.SINGLE_CHAT, // Defaulting to single chat
+                sessionId: 0, // Not used for now?
+                senderId: currentUserId,
+                targetId: parseInt(targetId),
+                content: content,
+                contentType: "text",
+                timestamp: Date.now()
+            });
+
+            const buffer = ChatPayload.encode(payload).finish();
+            sendPacket(CmdType.SINGLE_CHAT, buffer);
+            
+            // Display sent message
+            addMessage(content, 'sent');
+            document.getElementById('message-input').value = '';
+        }
+
+        function sendHeartbeat() {
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                sendPacket(CmdType.HEARTBEAT, new Uint8Array(0));
+                console.log("Heartbeat sent");
+            }
+        }
+
+        function sendPacket(cmdType, bodyBuffer) {
+            const headerLen = 17;
+            const bodyLen = bodyBuffer.length;
+            const totalLen = headerLen + bodyLen;
+            
+            const buffer = new ArrayBuffer(totalLen);
+            const view = new DataView(buffer);
+            
+            // Header
+            view.setInt16(0, MAGIC);      // Magic
+            view.setInt8(2, VERSION);     // Version
+            view.setInt8(3, SERIAL);      // Serial
+            view.setInt8(4, cmdType);     // CmdType
+            view.setBigInt64(5, BigInt(Date.now())); // ReqId (using timestamp)
+            view.setInt32(13, bodyLen);   // Length
+            
+            // Body
+            const uint8Array = new Uint8Array(buffer);
+            uint8Array.set(bodyBuffer, headerLen);
+            
+            ws.send(buffer);
+        }
+
+        function handleMessage(arrayBuffer) {
+            const view = new DataView(arrayBuffer);
+            
+            if (arrayBuffer.byteLength < 17) return;
+            
+            const magic = view.getInt16(0);
+            if (magic !== MAGIC) {
+                console.error("Invalid Magic");
+                return;
+            }
+            
+            const cmdType = view.getInt8(4);
+            const length = view.getInt32(13);
+            
+            if (length > 0) {
+                const bodyBuffer = new Uint8Array(arrayBuffer, 17, length);
+                
+                if (cmdType === CmdType.SINGLE_CHAT || cmdType === CmdType.GROUP_CHAT) {
+                    const msg = ChatPayload.decode(bodyBuffer);
+                    addMessage(`[${msg.senderId}]: ${msg.content}`, 'received');
+                } else if (cmdType === CmdType.ERROR) {
+                    const msg = ChatPayload.decode(bodyBuffer); // Assuming error uses ChatPayload or similar? Protocol says AuthResponse for Auth?
+                    // Wait, Codec says: CmdType.AUTH -> AuthPayload (Request). 
+                    // Response for Auth? The Protocol file defines AuthResponse but Codec doesn't seem to use it for 'response' explicitly in decoder?
+                    // Codec decoder logic:
+                    // if cmdType == AUTH_VALUE -> message.setBody(AuthPayload.parseFrom(bytes))
+                    //Wait, decoder is for INCOMING messages to the server.
+                    // The CLIENT needs to decode OUTGOING messages from server.
+                    // Server sends: NettyMessage.
+                    // Server Encoder: writes Header + Body.
+                    // So we decode Header.
+                    // Body depends on CmdType.
+                    
+                    // Note: In a real scenario, the server would send back ACK or ERROR or CHAT messages.
+                    console.log("Received Cmd:", cmdType);
+                } else {
+                    console.log("Received Cmd:", cmdType);
+                }
+            }
+        }
+
+        function addMessage(text, type) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerText = text;
+            document.getElementById('messages').appendChild(div);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            addMessage(text, 'system');
+        }
+
+        function updateStatus(text) {
+            document.getElementById('status-bar').innerText = "Status: " + text;
+        }
+    </script>
+</body>
+</html>
