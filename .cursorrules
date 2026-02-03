@@ -1,0 +1,27 @@
+# Literature Archive Project Rules
+
+## 核心原则
+- **语言要求**: 所有的代码注释、文档以及 AI 的回复必须使用 **中文**。
+- **回复风格**: 简洁、专业、高效。
+
+## 开发规范
+
+### 1. 接口入参出参封装
+- 所有 API 的返回值必须统一封装在 `com.literature.common.core.model.ApiResponse<T>` 中。
+- **成功响应**: 状态码必须为 `0000` (使用 `ErrorCode.SUCCESS`)。
+- **错误响应**: 根据业务情况使用 `ErrorCode` 类中定义的常量（如 `4001`, `4004`, `5000` 等）。
+- **分页响应**: 分页数据必须封装在 `com.literature.common.core.model.PageResponse<T>` 中，然后再嵌套进 `ApiResponse`。
+
+### 2. 代码风格
+- 遵循标准的 Java 开发规范。
+- 优先使用 Java 17+ 的特性（如 `record`, `switch expressions`）。
+- 依赖注入优先使用构造函数注入。
+
+### 3. 架构约束
+- 本项目为微服务架构，公共逻辑应放在 `common-core` 模块中。
+- 业务逻辑应在 Service 层实现，Controller 层只负责请求转发和参数校验。
+- 异常处理统一归由 `GlobalExceptionHandler` 处理，不要在业务代码中随意 catch 并不再抛出。
+
+## AI 指令
+- 当被要求编写新的 Controller 接口时，务必检查是否使用了 `ApiResponse` 进行结果导出。
+- 解释代码逻辑时，请使用清晰的中文段落和代码块。
