@@ -4,11 +4,13 @@ import com.literature.chat.netty.codec.ChatProtocolDecoder;
 import com.literature.chat.netty.codec.ChatProtocolEncoder;
 import com.literature.chat.netty.handler.AuthHandler;
 import com.literature.chat.netty.handler.ChatMessageHandler;
+import com.literature.chat.netty.codec.crypto.ChatCryptoCodec;
 import com.literature.chat.netty.handler.ExceptionHandler;
 import com.literature.chat.netty.handler.HeartbeatHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
@@ -32,7 +34,11 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
     @Autowired
     private ExceptionHandler exceptionHandler;
 
+    @Autowired
+    private ChatCryptoCodec chatCryptoCodec;
+
     private EventExecutorGroup businessGroup;
+
 
     public void setBusinessGroup(EventExecutorGroup businessGroup) {
         this.businessGroup = businessGroup;
@@ -53,8 +59,10 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
         // 2. 编解码器
         pipeline.addLast(new ChatProtocolDecoder());
         pipeline.addLast(new ChatProtocolEncoder());
+        pipeline.addLast(chatCryptoCodec);
 
         // 3. 心跳检测 (读空闲 60秒)
+
         pipeline.addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS));
         pipeline.addLast(new HeartbeatHandler()); // 每次 new 一个，或者 HeartbeatHandler 加 @Sharable
 

@@ -51,18 +51,20 @@ public final class ChatProtocol {
     java.lang.String[] descriptorData = {
       "\n.chat-service/src/main/proto/ChatProtoc" +
       "ol.proto\022\036com.literature.chat.netty.protocol" +
-      "\"\306\001\n\013ChatPayload\0224\n\003cmd\030\001 \001(\0162\'.com.gmrf" +
+      "\"\363\001\n\013ChatPayload\0224\n\003cmd\030\001 \001(\0162\'.com.gmrf" +
       "id.chat.netty.protocol.CmdType\022\022\n\nsessio" +
       "n_id\030\002 \001(\003\022\021\n\tsender_id\030\003 \001(\003\022\021\n\ttarget_" +
       "id\030\004 \001(\003\022\017\n\007content\030\005 \001(\t\022\024\n\014content_typ" +
       "e\030\006 \001(\t\022\021\n\ttimestamp\030\007 \001(\003\022\r\n\005extra\030\010 \001(" +
-      "\t\"/\n\013AuthPayload\022\r\n\005token\030\001 \001(\t\022\021\n\tdevic" +
+      "\t\022\021\n\tencrypted\030\t \001(\010\022\023\n\013enc_content\030\n \001(\014" +
+      "\"/\n\013AuthPayload\022\r\n\005token\030\001 \001(\t\022\021\n\tdevic" +
       "e_id\030\002 \001(\t\"0\n\014AuthResponse\022\017\n\007success\030\001 " +
       "\001(\010\022\017\n\007message\030\002 \001(\t*d\n\007CmdType\022\013\n\007UNKNO" +
       "WN\020\000\022\r\n\tHEARTBEAT\020\001\022\010\n\004AUTH\020\002\022\017\n\013SINGLE_" +
       "CHAT\020\003\022\016\n\nGROUP_CHAT\020\004\022\007\n\003ACK\020\005\022\t\n\005ERROR" +
       "\020\006B0\n\036com.literature.chat.netty.protocolB\014Ch" +
       "atProtocolP\001b\006proto3"
+
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -73,7 +75,8 @@ public final class ChatProtocol {
     internal_static_com_literature_chat_netty_protocol_ChatPayload_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_literature_chat_netty_protocol_ChatPayload_descriptor,
-        new java.lang.String[] { "Cmd", "SessionId", "SenderId", "TargetId", "Content", "ContentType", "Timestamp", "Extra", });
+        new java.lang.String[] { "Cmd", "SessionId", "SenderId", "TargetId", "Content", "ContentType", "Timestamp", "Extra", "Encrypted", "EncContent", });
+
     internal_static_com_literature_chat_netty_protocol_AuthPayload_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_com_literature_chat_netty_protocol_AuthPayload_fieldAccessorTable = new

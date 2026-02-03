@@ -19,6 +19,8 @@
     <module>ops-service</module>
     <module>chat-service</module>
     <module>monitor-service</module>
+    <module>crypto-spring-boot-starter</module>
+
   </modules>
 
   <properties>

@@ -77,8 +77,14 @@
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.literature</groupId>
+      <artifactId>crypto-spring-boot-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
     <!-- Phase 5: MongoDB for chat history -->
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-mongodb</artifactId>

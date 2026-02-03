@@ -35,7 +35,9 @@ private static final long serialVersionUID = 0L;
     content_ = "";
     contentType_ = "";
     extra_ = "";
+    encContent_ = com.google.protobuf.ByteString.EMPTY;
   }
+
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
@@ -269,6 +271,37 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int ENCRYPTED_FIELD_NUMBER = 9;
+  private boolean encrypted_ = false;
+  /**
+   * <pre>
+   * 是否加密
+   * </pre>
+   *
+   * <code>bool encrypted = 9;</code>
+   * @return The encrypted.
+   */
+  @java.lang.Override
+  public boolean getEncrypted() {
+    return encrypted_;
+  }
+
+  public static final int ENC_CONTENT_FIELD_NUMBER = 10;
+  private com.google.protobuf.ByteString encContent_ = com.google.protobuf.ByteString.EMPTY;
+  /**
+   * <pre>
+   * 加密后的内容
+   * </pre>
+   *
+   * <code>bytes enc_content = 10;</code>
+   * @return The encContent.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString getEncContent() {
+    return encContent_;
+  }
+
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -307,7 +340,14 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(extra_)) {
       com.google.protobuf.GeneratedMessage.writeString(output, 8, extra_);
     }
+    if (encrypted_ != false) {
+      output.writeBool(9, encrypted_);
+    }
+    if (!encContent_.isEmpty()) {
+      output.writeBytes(10, encContent_);
+    }
     getUnknownFields().writeTo(output);
+
   }
 
   @java.lang.Override
@@ -345,7 +385,16 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(extra_)) {
       size += com.google.protobuf.GeneratedMessage.computeStringSize(8, extra_);
     }
+    if (encrypted_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(9, encrypted_);
+    }
+    if (!encContent_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(10, encContent_);
+    }
     size += getUnknownFields().getSerializedSize();
+
     memoizedSize = size;
     return size;
   }
@@ -375,8 +424,13 @@ private static final long serialVersionUID = 0L;
         != other.getTimestamp()) return false;
     if (!getExtra()
         .equals(other.getExtra())) return false;
+    if (getEncrypted()
+        != other.getEncrypted()) return false;
+    if (!getEncContent()
+        .equals(other.getEncContent())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
+
   }
 
   @java.lang.Override
@@ -406,9 +460,15 @@ private static final long serialVersionUID = 0L;
         getTimestamp());
     hash = (37 * hash) + EXTRA_FIELD_NUMBER;
     hash = (53 * hash) + getExtra().hashCode();
+    hash = (37 * hash) + ENCRYPTED_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getEncrypted());
+    hash = (37 * hash) + ENC_CONTENT_FIELD_NUMBER;
+    hash = (53 * hash) + getEncContent().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
+
   }
 
   public static com.literature.chat.netty.protocol.ChatPayload parseFrom(
@@ -549,7 +609,10 @@ private static final long serialVersionUID = 0L;
       contentType_ = "";
       timestamp_ = 0L;
       extra_ = "";
+      encrypted_ = false;
+      encContent_ = com.google.protobuf.ByteString.EMPTY;
       return this;
+
     }
 
     @java.lang.Override
@@ -606,7 +669,14 @@ private static final long serialVersionUID = 0L;
       if (((from_bitField0_ & 0x00000080) != 0)) {
         result.extra_ = extra_;
       }
+      if (((from_bitField0_ & 0x00000100) != 0)) {
+        result.encrypted_ = encrypted_;
+      }
+      if (((from_bitField0_ & 0x00000200) != 0)) {
+        result.encContent_ = encContent_;
+      }
     }
+
 
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -650,9 +720,16 @@ private static final long serialVersionUID = 0L;
         bitField0_ |= 0x00000080;
         onChanged();
       }
+      if (other.getEncrypted() != false) {
+        setEncrypted(other.getEncrypted());
+      }
+      if (other.getEncContent() != com.google.protobuf.ByteString.EMPTY) {
+        setEncContent(other.getEncContent());
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
+
     }
 
     @java.lang.Override
@@ -716,6 +793,16 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00000080;
               break;
             } // case 66
+            case 72: {
+              encrypted_ = input.readBool();
+              bitField0_ |= 0x00000100;
+              break;
+            } // case 72
+            case 82: {
+              encContent_ = input.readBytes();
+              bitField0_ |= 0x00000200;
+              break;
+            } // case 82
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -724,6 +811,7 @@ private static final long serialVersionUID = 0L;
             } // default:
           } // switch (tag)
         } // while (!done)
+
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.unwrapIOException();
       } finally {
@@ -1237,6 +1325,92 @@ private static final long serialVersionUID = 0L;
       onChanged();
       return this;
     }
+
+    private boolean encrypted_;
+    /**
+     * <pre>
+     * 是否加密
+     * </pre>
+     *
+     * <code>bool encrypted = 9;</code>
+     * @return The encrypted.
+     */
+    public boolean getEncrypted() {
+      return encrypted_;
+    }
+    /**
+     * <pre>
+     * 是否加密
+     * </pre>
+     *
+     * <code>bool encrypted = 9;</code>
+     * @param value The encrypted to set.
+     * @return This builder for chaining.
+     */
+    public Builder setEncrypted(boolean value) {
+      encrypted_ = value;
+      bitField0_ |= 0x00000100;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * 是否加密
+     * </pre>
+     *
+     * <code>bool encrypted = 9;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearEncrypted() {
+      bitField0_ = (bitField0_ & ~0x00000100);
+      encrypted_ = false;
+      onChanged();
+      return this;
+    }
+
+    private com.google.protobuf.ByteString encContent_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <pre>
+     * 加密后的内容
+     * </pre>
+     *
+     * <code>bytes enc_content = 10;</code>
+     * @return The encContent.
+     */
+    public com.google.protobuf.ByteString getEncContent() {
+      return encContent_;
+    }
+    /**
+     * <pre>
+     * 加密后的内容
+     * </pre>
+     *
+     * <code>bytes enc_content = 10;</code>
+     * @param value The encContent to set.
+     * @return This builder for chaining.
+     */
+    public Builder setEncContent(com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      encContent_ = value;
+      bitField0_ |= 0x00000200;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * 加密后的内容
+     * </pre>
+     *
+     * <code>bytes enc_content = 10;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearEncContent() {
+      bitField0_ = (bitField0_ & ~0x00000200);
+      encContent_ = com.google.protobuf.ByteString.EMPTY;
+      onChanged();
+      return this;
+    }
+
 
     // @@protoc_insertion_point(builder_scope:com.literature.chat.netty.protocol.ChatPayload)
   }

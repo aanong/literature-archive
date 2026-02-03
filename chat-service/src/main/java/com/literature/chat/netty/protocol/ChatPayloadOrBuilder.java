@@ -119,4 +119,25 @@ public interface ChatPayloadOrBuilder extends
    */
   com.google.protobuf.ByteString
       getExtraBytes();
+
+  /**
+   * <pre>
+   * 是否加密
+   * </pre>
+   *
+   * <code>bool encrypted = 9;</code>
+   * @return The encrypted.
+   */
+  boolean getEncrypted();
+
+  /**
+   * <pre>
+   * 加密后的内容
+   * </pre>
+   *
+   * <code>bytes enc_content = 10;</code>
+   * @return The encContent.
+   */
+  com.google.protobuf.ByteString getEncContent();
 }
+

@@ -55,3 +55,11 @@ security:
   jwt:
     issuer-uri: ${JWT_ISSUER_URI:http://user-service}
     jwk-set-uri: ${JWT_JWK_SET_URI:http://user-service/.well-known/jwks.json}
+
+literature:
+  crypto:
+    http:
+      enabled: true
+      sign-key: ${CRYPTO_SIGN_KEY:changeme}
+      encrypt-key: ${CRYPTO_ENCRYPT_KEY:changeme}
+      replay-window-seconds: 300

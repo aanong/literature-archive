@@ -93,3 +93,10 @@ spring.flyway:
 logging:
   level:
     com.literature.chat.mapper: DEBUG
+
+literature:
+  crypto:
+    netty:
+      enabled: true
+      key-derive-salt: ${CRYPTO_SALT:default-salt}
+

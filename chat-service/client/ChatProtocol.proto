@@ -23,6 +23,8 @@ message ChatPayload {
     string content_type = 6;// 内容类型 (text, image, file)
     int64 timestamp = 7;    // 时间戳
     string extra = 8;       // 扩展字段 (JSON)
+    bool encrypted = 9;     // 是否加密
+    bytes enc_content = 10; // 加密后的内容
 }
 
 // 认证请求负载 (使用 content 字段传递 token)
