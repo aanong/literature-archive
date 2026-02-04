@@ -1,7 +1,9 @@
 package com.literature.oss.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 @ConfigurationProperties(prefix = "literature.oss")
 public class OssProperties {
   private boolean enabled = true;

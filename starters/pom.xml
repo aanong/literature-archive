@@ -15,5 +15,7 @@
   <modules>
     <module>crypto-spring-boot-starter</module>
     <module>oss-spring-boot-starter</module>
+    <module>sharding-spring-boot-starter</module>
+    <module>logging-spring-boot-starter</module>
   </modules>
 </project>

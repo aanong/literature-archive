@@ -71,7 +71,52 @@ services:
     networks:
       - literature-network
 
+  elasticsearch:
+    image: elasticsearch:8.12.0
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ES_PASSWORD:-elastic123}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - literature-network
+
+  skywalking-oap:
+    image: apache/skywalking-oap-server:9.7.0
+    container_name: skywalking-oap
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    environment:
+      - SW_STORAGE=elasticsearch
+      - SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200
+      - SW_ES_USER=elastic
+      - SW_ES_PASSWORD=${ES_PASSWORD:-elastic123}
+    depends_on:
+      - elasticsearch
+    networks:
+      - literature-network
+
+  skywalking-ui:
+    image: apache/skywalking-ui:9.7.0
+    container_name: skywalking-ui
+    ports:
+      - "8088:8080"
+    environment:
+      - SW_OAP_ADDRESS=http://skywalking-oap:12800
+    depends_on:
+      - skywalking-oap
+    networks:
+      - literature-network
+
   nacos:
+
     image: nacos/nacos-server:v2.3.2
     container_name: nacos
     ports:
@@ -96,3 +141,5 @@ volumes:
   mysql_data:
   redis_data:
   mongo_data:
+  es_data:
+

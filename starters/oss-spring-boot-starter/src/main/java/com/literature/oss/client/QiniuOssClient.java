@@ -14,6 +14,7 @@ import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URL;
 
 public class QiniuOssClient implements OssClient {
   private final UploadManager uploadManager;
@@ -53,11 +54,8 @@ public class QiniuOssClient implements OssClient {
   @Override
   public InputStream download(String bucketName, String objectName) {
     try {
-      String publicUrl = "http://" + domain + "/" + objectName;
-      String privateUrl = auth.privateDownloadUrl(publicUrl);
-      // Qiniu SDK doesn't provide a direct way to get InputStream from DownloadUrl easily here
-      // This is a simplified implementation
-      throw new UnsupportedOperationException("Qiniu download not implemented yet");
+      String url = getUrl(bucketName, objectName, 3600);
+      return new URL(url).openStream();
     } catch (Exception ex) {
       throw new OssException("Qiniu download failed", ex);
     }
