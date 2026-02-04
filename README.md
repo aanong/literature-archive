@@ -1,4 +1,4 @@
-# iot-cen Backend Foundation
+# literature-archive Backend Foundation
 
 ## Overview
 Spring Cloud Alibaba microservice scaffold for the 古籍/诗书阅读后台系统. Includes gateway, auth, upload, logging, and monitoring foundations.
