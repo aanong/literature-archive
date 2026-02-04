@@ -4,8 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.literature</groupId>
-    <artifactId>literature-archive</artifactId>
+    <artifactId>starters</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>crypto-spring-boot-starter</artifactId>
   <packaging>jar</packaging>

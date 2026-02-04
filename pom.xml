@@ -19,12 +19,14 @@
     <module>ops-service</module>
     <module>chat-service</module>
     <module>monitor-service</module>
-    <module>crypto-spring-boot-starter</module>
+    <module>starters</module>
 
   </modules>
 
   <properties>
     <java.version>17</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring.boot.version>3.2.3</spring.boot.version>
     <spring.cloud.version>2023.0.1</spring.cloud.version>
     <spring.cloud.alibaba.version>2023.0.1.0</spring.cloud.alibaba.version>
