@@ -39,43 +39,43 @@ public class ChatMessageHandler extends SimpleChannelInboundHandler<NettyMessage
         } else if (msg.getHeader().getCmdType() == CmdType.GROUP_CHAT_VALUE) {
             handleGroupChat(ctx, (ChatPayload) msg.getBody());
         } else if (msg.getHeader().getCmdType() == CmdType.HEARTBEAT_VALUE) {
-            // Heartbeat response
+            // 心跳响应
         }
     }
 
     private void handleGroupChat(ChannelHandlerContext ctx, ChatPayload payload) {
         Long sessionId = payload.getTargetId();
 
-        // Persist message (History)
+        // 持久化消息（历史记录）
         com.literature.chat.dto.ChatMessageDTO dto = new com.literature.chat.dto.ChatMessageDTO();
         dto.setMessageId(payload.getTimestamp());
         dto.setSenderId(payload.getSenderId());
         dto.setSessionId(sessionId);
-        dto.setType(2); // Group chat
+        dto.setType(2); // 群聊
         dto.setContent(payload.getContent());
         dto.setTimestamp(payload.getTimestamp());
         offlineMessageService.saveOfflineMessage(dto);
 
-        // Broadcast to all servers (including self) to handle group fan-out
-        // "BROADCAST" is just a placeholder here since we changed Producer to ignore
-        // targetServer and broadcast to topic.
+        // 广播到所有服务器（包括自身）以处理群组消息分发
+        // "BROADCAST" 只是一个占位符，因为我们已将 Producer 修改为忽略
+        // targetServer 并直接广播到 Topic。
         chatMessageProducer.sendToServer("BROADCAST", dto);
         log.info("Group message persisted and broadcasted for session {}", sessionId);
 
-        // We do NOT need to push locally here because Consumer on this same server will
-        // pick it up and do the push!
-        // This ensures consistency.
+        // 我们不需要在此处进行本地推送，因为部署在同一服务器上的 Consumer 会
+        // 接收消息并执行推送！
+        // 这样可以确保一致性。
     }
 
     private void handleSingleChat(ChannelHandlerContext ctx, ChatPayload payload) {
         Long targetId = payload.getTargetId();
 
-        // Persist message (History & Offline)
+        // 持久化消息（历史记录和离线）
         com.literature.chat.dto.ChatMessageDTO dto = new com.literature.chat.dto.ChatMessageDTO();
-        dto.setMessageId(payload.getTimestamp()); // Use timestamp as ID for now
+        dto.setMessageId(payload.getTimestamp()); // 暂时使用时间戳作为 ID
         dto.setSenderId(payload.getSenderId());
         dto.setTargetUserId(targetId);
-        dto.setType(1); // Single chat
+        dto.setType(1); // 单聊
         dto.setContent(payload.getContent());
         dto.setTimestamp(payload.getTimestamp());
         offlineMessageService.saveOfflineMessage(dto);
@@ -83,14 +83,14 @@ public class ChatMessageHandler extends SimpleChannelInboundHandler<NettyMessage
         Channel targetChannel = sessionManager.getChannel(targetId);
 
         if (targetChannel != null && targetChannel.isActive()) {
-            // Local push
+            // 本地推送
             forwardMessage(targetChannel, payload);
             log.info("Message forwarded locally from {} to {}", payload.getSenderId(), targetId);
         } else {
-            // Check remote route
+            // 检查远程路由
             String targetServer = sessionRouteService.getUserRoute(targetId);
             if (targetServer != null) {
-                // Forward via Kafka
+                // 通过 Kafka 转发
                 chatMessageProducer.sendToServer(targetServer, dto);
                 log.info("Message routed to server {} for user {}", targetServer, targetId);
             } else {

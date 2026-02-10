@@ -9,6 +9,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,27 +34,42 @@ public class AuthHandler extends SimpleChannelInboundHandler<NettyMessage> {
     @org.springframework.beans.factory.annotation.Value("${netty.port:9090}")
     private int port;
 
+    @Autowired
+    private JwtDecoder jwtDecoder;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NettyMessage msg) throws Exception {
         if (msg.getHeader().getCmdType() == CmdType.AUTH_VALUE) {
             AuthPayload payload = (AuthPayload) msg.getBody();
             String token = payload.getToken();
-            // TODO: Real JWT validation
-            if (token != null && token.startsWith("user:")) {
-                Long userId = Long.parseLong(token.split(":")[1]);
-                sessionManager.addSession(userId, ctx.channel());
+            // Real JWT validation
+            if (token != null && !token.isEmpty()) {
+                try {
+                    Jwt jwt = jwtDecoder.decode(token);
+                    String subject = jwt.getSubject();
+                    // 假设 subject 就是 userId
+                    Long userId = Long.parseLong(subject);
 
-                // Register route
-                String serverAddress = java.net.InetAddress.getLocalHost().getHostAddress() + ":" + port;
-                sessionRouteService.registerUserRoute(userId, serverAddress);
+                    sessionManager.addSession(userId, ctx.channel());
 
-                // Pull offline messages
-                offlineMessageService.pullAndPushOfflineMessages(userId);
+                    // Register route
+                    String serverAddress = java.net.InetAddress.getLocalHost().getHostAddress() + ":" + port;
+                    sessionRouteService.registerUserRoute(userId, serverAddress);
 
-                ctx.pipeline().remove(this); // Remove self
-                log.info("User {} authenticated and route registered at {}", userId, serverAddress);
+                    // Pull offline messages
+                    offlineMessageService.pullAndPushOfflineMessages(userId);
+
+                    ctx.pipeline().remove(this); // Remove self
+                    log.info("User {} authenticated and route registered at {}", userId, serverAddress);
+                } catch (JwtException | NumberFormatException e) {
+                    log.warn("Authentication failed for channel {}: {}", ctx.channel().id(), e.getMessage());
+                    ctx.close();
+                } catch (Exception e) {
+                    log.error("Unexpected authentication error", e);
+                    ctx.close();
+                }
             } else {
-                log.warn("Authentication failed for channel {}", ctx.channel().id());
+                log.warn("Authentication failed for channel {}: Token is missing", ctx.channel().id());
                 ctx.close();
             }
         } else {
