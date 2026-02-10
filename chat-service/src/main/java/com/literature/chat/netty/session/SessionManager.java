@@ -25,18 +25,27 @@ public class SessionManager {
     private final Map<String, Long> channelUserMap = new ConcurrentHashMap<>();
 
     public void addSession(Long userId, Channel channel) {
-        userChannelMap.put(userId, channel);
+        Channel oldChannel = userChannelMap.put(userId, channel);
+        if (oldChannel != null && oldChannel != channel) {
+            channelUserMap.remove(oldChannel.id().asLongText());
+            oldChannel.close();
+            log.warn("用户 {} 重复连接，已关闭旧 Channel {}", userId, oldChannel.id());
+        }
         channelUserMap.put(channel.id().asLongText(), userId);
-        log.info("User {} connected, channel: {}", userId, channel.id());
+        log.info("用户 {} 已连接, channel: {}", userId, channel.id());
     }
 
-    public void removeSession(Channel channel) {
+    /**
+     * 移除会话映射，返回被移除的 userId（可能为 null）
+     */
+    public Long removeSession(Channel channel) {
         String channelId = channel.id().asLongText();
         Long userId = channelUserMap.remove(channelId);
         if (userId != null) {
             userChannelMap.remove(userId);
-            log.info("User {} disconnected, channel: {}", userId, channelId);
+            log.info("用户 {} 已断开, channel: {}", userId, channelId);
         }
+        return userId;
     }
 
     public Channel getChannel(Long userId) {

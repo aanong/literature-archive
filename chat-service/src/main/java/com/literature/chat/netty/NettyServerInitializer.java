@@ -4,13 +4,15 @@ import com.literature.chat.netty.codec.ChatProtocolDecoder;
 import com.literature.chat.netty.codec.ChatProtocolEncoder;
 import com.literature.chat.netty.handler.AuthHandler;
 import com.literature.chat.netty.handler.ChatMessageHandler;
-import com.literature.chat.netty.codec.crypto.ChatCryptoCodec;
 import com.literature.chat.netty.handler.ExceptionHandler;
 import com.literature.chat.netty.handler.HeartbeatHandler;
+import com.literature.chat.netty.handler.SessionCleanupHandler;
+import com.literature.crypto.autoconfigure.CryptoProperties;
+import com.literature.crypto.core.AesGcmCrypto;
+import com.literature.crypto.core.KeyGenerator;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
@@ -35,10 +37,21 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
     private ExceptionHandler exceptionHandler;
 
     @Autowired
-    private ChatCryptoCodec chatCryptoCodec;
+    private SessionCleanupHandler sessionCleanupHandler;
+
+    @Autowired
+    private CryptoProperties cryptoProperties;
+
+    @Autowired
+    private AesGcmCrypto aesGcmCrypto;
+
+    @Autowired
+    private KeyGenerator keyGenerator;
 
     private EventExecutorGroup businessGroup;
 
+    // HeartbeatHandler 无状态，可安全共享
+    private final HeartbeatHandler sharedHeartbeatHandler = new HeartbeatHandler();
 
     public void setBusinessGroup(EventExecutorGroup businessGroup) {
         this.businessGroup = businessGroup;
@@ -53,20 +66,24 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
-        // 1. 解决粘包半包 (maxFrameLength: 10MB)
-        pipeline.addLast(new LengthFieldBasedFrameDecoder(10 * 1024 * 1024, 13, 4, 0, 0));
+        // 0. 会话清理处理器（最早添加，确保 channelInactive 时能清理资源）
+        pipeline.addLast(sessionCleanupHandler);
+
+        // 1. 解决粘包半包（maxFrameLength: 256KB，聊天消息不需要 10MB）
+        pipeline.addLast(new LengthFieldBasedFrameDecoder(256 * 1024, 13, 4, 0, 0));
 
         // 2. 编解码器
         pipeline.addLast(new ChatProtocolDecoder());
         pipeline.addLast(new ChatProtocolEncoder());
-        pipeline.addLast(chatCryptoCodec);
+        // ChatCryptoCodec 是有状态的 MessageToMessageCodec，每个 Channel 必须独立实例
+        pipeline.addLast(new com.literature.chat.netty.codec.crypto.ChatCryptoCodec(
+                cryptoProperties, aesGcmCrypto, keyGenerator));
 
-        // 3. 心跳检测 (读空闲 60秒)
-
+        // 3. 心跳检测（读空闲 60秒）
         pipeline.addLast(new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS));
-        pipeline.addLast(new HeartbeatHandler()); // 每次 new 一个，或者 HeartbeatHandler 加 @Sharable
+        pipeline.addLast(sharedHeartbeatHandler);
 
-        // 4. 业务处理器 (使用业务线程池)
+        // 4. 业务处理器（使用业务线程池）
         if (businessGroup != null) {
             pipeline.addLast(businessGroup, authHandler);
             pipeline.addLast(businessGroup, chatMessageHandler);

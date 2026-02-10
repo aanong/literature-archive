@@ -1,5 +1,6 @@
 package com.literature.chat.netty.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
@@ -7,9 +8,10 @@ import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 心跳处理器
+ * 心跳处理器（无状态，可安全共享）
  */
 @Slf4j
+@ChannelHandler.Sharable
 public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
 
     @Override

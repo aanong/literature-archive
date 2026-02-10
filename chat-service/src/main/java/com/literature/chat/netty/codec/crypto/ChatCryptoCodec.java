@@ -10,9 +10,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import javax.crypto.SecretKey;
-import org.springframework.stereotype.Component;
 
-@Component
+/**
+ * 聊天加解密编解码器
+ * <p>
+ * 注意：MessageToMessageCodec 是有状态的，不能作为共享 Bean。
+ * 每个 Channel 需要在 NettyServerInitializer 中 new 独立实例。
+ */
 public class ChatCryptoCodec extends MessageToMessageCodec<ChatPayload, ChatPayload> {
   private final CryptoProperties properties;
   private final AesGcmCrypto aesGcmCrypto;

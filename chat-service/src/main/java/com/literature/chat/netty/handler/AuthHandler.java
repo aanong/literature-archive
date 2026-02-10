@@ -61,15 +61,6 @@ public class AuthHandler extends SimpleChannelInboundHandler<NettyMessage> {
         }
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        sessionManager.removeSession(ctx.channel());
-        // Remove route? Ideally yes, but we need userId.
-        // SessionManager maps channel -> userId.
-        Long userId = sessionManager.getUserId(ctx.channel());
-        if (userId != null) {
-            sessionRouteService.removeUserRoute(userId);
-        }
-        super.channelInactive(ctx);
-    }
+    // 注意：channelInactive 已由 SessionCleanupHandler 统一处理，
+    // AuthHandler 认证成功后会 remove(this)，所以不能在这里做清理。
 }

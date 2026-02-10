@@ -111,6 +111,10 @@ public class ChatMessageHandler extends SimpleChannelInboundHandler<NettyMessage
         message.setHeader(header);
         message.setBody(payload);
 
-        targetChannel.writeAndFlush(message);
+        targetChannel.writeAndFlush(message).addListener((io.netty.channel.ChannelFutureListener) future -> {
+            if (!future.isSuccess()) {
+                log.error("消息写入 Channel {} 失败", targetChannel.id(), future.cause());
+            }
+        });
     }
 }

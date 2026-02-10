@@ -126,7 +126,11 @@ public class OfflineMessageService {
                 nettyMessage.setHeader(header);
                 nettyMessage.setBody(payload);
 
-                channel.writeAndFlush(nettyMessage);
+                channel.writeAndFlush(nettyMessage).addListener((io.netty.channel.ChannelFutureListener) future -> {
+                    if (!future.isSuccess()) {
+                        log.error("离线消息推送到用户 {} 失败", userId, future.cause());
+                    }
+                });
             }
 
             // Clear queue after pushing

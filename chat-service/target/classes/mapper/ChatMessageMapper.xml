@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.literature.chat.mapper.ChatMessageMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.literature.chat.entity.ChatMessage">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="sender_id" property="senderId"/>
+        <result column="content" property="content"/>
+        <result column="content_type" property="contentType"/>
+        <result column="status" property="status"/>
+        <result column="reply_to_id" property="replyToId"/>
+        <result column="extra" property="extra"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, session_id, sender_id, content, content_type, status, reply_to_id, extra, created_at
+    </sql>
+
+    <!-- 分页查询会话消息（按时间倒序） -->
+    <select id="selectBySessionIdDesc" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM chat_messages
+        WHERE session_id = #{sessionId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 查询某时间点之后的消息 -->
+    <select id="selectAfterTime" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM chat_messages
+        WHERE session_id = #{sessionId}
+          AND created_at > #{afterTime}
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 统计会话消息数 -->
+    <select id="countBySessionId" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM chat_messages
+        WHERE session_id = #{sessionId}
+    </select>
+
+    <!-- 统计未读消息数 -->
+    <select id="countUnreadMessages" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM chat_messages
+        WHERE session_id = #{sessionId}
+          AND created_at > #{lastReadAt}
+          AND sender_id != #{userId}
+    </select>
+
+    <!-- 搜索消息内容 -->
+    <select id="searchMessages" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM chat_messages
+        WHERE session_id = #{sessionId}
+          AND content LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 批量更新消息状态 -->
+    <update id="updateStatusByIds">
+        UPDATE chat_messages
+        SET status = #{status}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 删除会话的所有消息 -->
+    <delete id="deleteBySessionId">
+        DELETE FROM chat_messages
+        WHERE session_id = #{sessionId}
+    </delete>
+
+</mapper>

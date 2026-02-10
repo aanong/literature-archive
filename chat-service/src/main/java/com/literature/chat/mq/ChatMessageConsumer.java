@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 @Slf4j
 @Service
 public class ChatMessageConsumer {
@@ -83,8 +80,11 @@ public class ChatMessageConsumer {
             nettyMessage.setHeader(header);
             nettyMessage.setBody(payloadBuilder.build());
 
-            channel.writeAndFlush(nettyMessage);
-            log.debug("Relayed message to user {}", userId);
+            channel.writeAndFlush(nettyMessage).addListener((io.netty.channel.ChannelFutureListener) future -> {
+                if (!future.isSuccess()) {
+                    log.error("消息推送到用户 {} 的 Channel 失败", userId, future.cause());
+                }
+            });
         }
     }
 }

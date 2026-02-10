@@ -39,6 +39,10 @@ public class NettyServer {
     public void start() {
         new Thread(() -> {
             try {
+                // 启用 Netty 内存泄漏检测（开发/测试：PARANOID，生产环境建议改为 SIMPLE）
+                io.netty.util.ResourceLeakDetector.setLevel(
+                        io.netty.util.ResourceLeakDetector.Level.PARANOID);
+
                 // 注入业务线程池
                 nettyServerInitializer.setBusinessGroup(businessGroup);
 
