@@ -97,6 +97,6 @@ logging:
 literature:
   crypto:
     netty:
-      enabled: true
+      enabled: false
       key-derive-salt: ${CRYPTO_SALT:default-salt}
 
