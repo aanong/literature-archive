@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +37,9 @@ class QAServiceTest {
 
     @Mock
     private RAGService ragService;
+
+    @Mock
+    private HistoryGuardService historyGuardService;
 
     @InjectMocks
     private QAService qaService;
@@ -73,16 +77,21 @@ class QAServiceTest {
 
         when(sessionMapper.updateById(any(QASession.class))).thenReturn(1);
 
+        // Stub guard to pass through the answer
+        when(historyGuardService.guardAnswer(anyString(), anyString(), anyList()))
+                .thenAnswer(inv -> new HistoryGuardService.GuardedResponse(
+                        inv.getArgument(0), List.of(), List.of(), List.of()));
+
         String answer = qaService.ask(sessionId, "RAG Question");
 
         assertEquals("AI Answer", answer);
-        
+
         // Verify RAG interaction
         verify(ragService).retrieveKnowledge("RAG Question", 3);
-        
+
         // Verify Message Saving: User Msg + AI Msg
         verify(messageMapper, times(2)).insert(any(QAMessage.class));
-        
+
         // Verify Session Update
         verify(sessionMapper).updateById(session);
     }

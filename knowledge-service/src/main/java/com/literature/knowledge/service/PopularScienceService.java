@@ -19,10 +19,11 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PopularScienceService {
-    
+
     private final PopularScienceArticleMapper articleMapper;
     private final LangChainService langChainService;
-    
+    private final HistoryGuardService historyGuardService;
+
     /**
      * AI生成科普文章
      */
@@ -35,11 +36,18 @@ public class PopularScienceService {
                 文章结构应包含:引言、正文(分小标题)、结语。
                 请使用Markdown格式输出。
                 """, topic, requirement);
-        
-        // 2. 调用AI生成
-        String content = langChainService.chat(prompt);
-        
-        // 3. 保存文章草稿
+
+        // 2. 用历史防护服务增强 prompt
+        String guardedPrompt = historyGuardService.buildGuardedSystemPrompt(prompt);
+
+        // 3. 调用AI生成
+        String content = langChainService.chat(guardedPrompt);
+
+        // 4. 防幻觉后处理
+        HistoryGuardService.GuardedResponse guarded = historyGuardService.guardAnswer(content, topic, List.of());
+        content = guarded.answer();
+
+        // 5. 保存文章草稿
         PopularScienceArticle article = new PopularScienceArticle();
         article.setTitle(topic);
         article.setTopic(topic);
@@ -48,25 +56,25 @@ public class PopularScienceService {
         article.setAuthorType(PopularScienceArticle.AuthorType.AI);
         article.setStatus(PopularScienceArticle.Status.DRAFT);
         article.setCreatedAt(LocalDateTime.now());
-        
+
         articleMapper.insert(article);
         return article;
     }
-    
+
     /**
      * 获取文章详情
      */
     public Optional<PopularScienceArticle> getArticle(Long id) {
         return Optional.ofNullable(articleMapper.selectById(id));
     }
-    
+
     /**
      * 获取所有文章
      */
     public List<PopularScienceArticle> getAllArticles() {
         return articleMapper.selectList(null);
     }
-    
+
     /**
      * 发布文章
      */
@@ -76,7 +84,7 @@ public class PopularScienceService {
         if (article == null) {
             throw new RuntimeException("Article not found: " + id);
         }
-        
+
         article.setStatus(PopularScienceArticle.Status.PUBLISHED);
         article.setPublishedAt(LocalDateTime.now());
         articleMapper.updateById(article);

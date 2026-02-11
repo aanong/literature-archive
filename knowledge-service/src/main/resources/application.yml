@@ -158,3 +158,50 @@ management:
     export:
       prometheus:
         enabled: true
+
+# ====== 历史科普防护配置 ======
+history-guard:
+  enabled: true
+  
+  # 防幻觉配置
+  anti-hallucination:
+    level: STANDARD                # LENIENT(宽松) / STANDARD(标准) / STRICT(严格)
+    require-source-citation: true  # 回答是否必须引用原文出处
+    max-unsourced-claims: 2        # 允许的最大无出处论断数
+    confidence-threshold: 0.75     # 向量检索最低匹配阈值
+    fact-check-enabled: true       # 是否开启二次事实核验
+    forbidden-phrases:             # 禁止出现的绝对化表述
+      - "众所周知"
+      - "毫无疑问"
+      - "历史证明"
+      - "不可否认"
+      - "铁板钉钉"
+    uncertainty-markers:
+      prefix: "⚠️ [待考证]"
+      suffix: "（此说法尚需查证更多史料）"
+  
+  # 时间线配置
+  timeline:
+    enabled: true
+    auto-extract: true
+    calendar-system: MIXED         # GREGORIAN / CHINESE_ERA / MIXED
+    validate-chronology: true
+    date-format: "公元{year}年（{dynasty}{era}{era_year}年）"
+  
+  # 史观冲突配置
+  conflict:
+    enabled: true
+    resolution-strategy: MULTI_VIEW  # SINGLE_AUTHORITY / MULTI_VIEW / SCHOLARLY_CONSENSUS
+    show-source-reliability: true
+    max-perspectives: 3
+    authority-ranking:
+      - name: "正史（二十四史）"
+        weight: 1.0
+      - name: "编年体（资治通鉴）"
+        weight: 0.95
+      - name: "现代学术研究"
+        weight: 0.9
+      - name: "纪事本末体"
+        weight: 0.85
+      - name: "笔记/野史"
+        weight: 0.6
