@@ -117,7 +117,7 @@ public class QAService {
         aiMsg.setSessionId(sessionId);
         aiMsg.setRole(QAMessage.Role.ASSISTANT);
         aiMsg.setContent(answer);
-        aiMsg.setModelName("deepseek-r1:7b"); // 应该从配置读取
+        aiMsg.setModelName(langChainService.getActiveProviderName());
         messageMapper.insert(aiMsg);
 
         // 6. 更新会话状态

@@ -1,33 +1,53 @@
 package com.literature.knowledge.service;
 
-import com.literature.knowledge.config.LangChain4jConfig;
+import com.literature.knowledge.config.AiModelProperties;
+import com.literature.knowledge.provider.ModelProviderFactory;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
+import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.List;
 
 /**
  * 向量嵌入服务
- * 负责与Ollama嵌入模型和Milvus向量数据库交互
+ * <p>
+ * 通过 {@link ModelProviderFactory} 获取当前配置的 Embedding 模型，
+ * 支持在 Ollama、OpenAI 之间切换。Milvus 向量存储保持不变。
+ * </p>
  */
 @Slf4j
 @Service
 public class EmbeddingService {
 
-    private final LangChain4jConfig config;
+    private final ModelProviderFactory providerFactory;
+    private final AiModelProperties properties;
+
     private EmbeddingModel embeddingModel;
     private EmbeddingStore<TextSegment> embeddingStore;
 
-    public EmbeddingService(LangChain4jConfig config) {
-        this.config = config;
+    // Milvus 配置仍从原有 langchain4j 配置读取
+    @Value("${langchain4j.milvus.host}")
+    private String milvusHost;
+
+    @Value("${langchain4j.milvus.port}")
+    private Integer milvusPort;
+
+    @Value("${langchain4j.milvus.collection-name}")
+    private String collectionName;
+
+    @Value("${langchain4j.milvus.dimension}")
+    private Integer dimension;
+
+    public EmbeddingService(ModelProviderFactory providerFactory, AiModelProperties properties) {
+        this.providerFactory = providerFactory;
+        this.properties = properties;
     }
 
     @PostConstruct
@@ -36,32 +56,32 @@ public class EmbeddingService {
         initEmbeddingStore();
     }
 
+    /**
+     * 初始化 Embedding 模型（通过 Provider 工厂）
+     */
     private void initEmbeddingModel() {
         try {
-            log.info("正在初始化Ollama嵌入模型: {}", config.getEmbeddingModelName());
-            this.embeddingModel = OllamaEmbeddingModel.builder()
-                    .baseUrl(config.getOllamaBaseUrl())
-                    .modelName(config.getEmbeddingModelName())
-                    .timeout(Duration.ofSeconds(60))
-                    .build();
-            log.info("Ollama嵌入模型初始化成功");
+            String provider = properties.getEmbedding().getProvider();
+            log.info("正在初始化 Embedding 模型, 提供商: {}", provider);
+            this.embeddingModel = providerFactory.getEmbeddingModel();
+            log.info("Embedding 模型初始化成功, 提供商: {}", provider);
         } catch (Exception e) {
-            log.error("Ollama嵌入模型初始化失败: {}", e.getMessage());
+            log.error("Embedding 模型初始化失败: {}", e.getMessage());
         }
     }
 
     private void initEmbeddingStore() {
         try {
-            log.info("正在初始化Milvus向量存储: {}:{}/{}", config.getMilvusHost(), config.getMilvusPort(), config.getCollectionName());
+            log.info("正在初始化 Milvus 向量存储: {}:{}/{}", milvusHost, milvusPort, collectionName);
             this.embeddingStore = MilvusEmbeddingStore.builder()
-                    .host(config.getMilvusHost())
-                    .port(config.getMilvusPort())
-                    .collectionName(config.getCollectionName())
-                    .dimension(config.getDimension())
+                    .host(milvusHost)
+                    .port(milvusPort)
+                    .collectionName(collectionName)
+                    .dimension(dimension)
                     .build();
-            log.info("Milvus向量存储初始化成功");
+            log.info("Milvus 向量存储初始化成功");
         } catch (Exception e) {
-            log.error("Milvus向量存储初始化失败: {}", e.getMessage());
+            log.error("Milvus 向量存储初始化失败: {}", e.getMessage());
         }
     }
 
@@ -76,7 +96,7 @@ public class EmbeddingService {
     }
 
     /**
-     * 将文本段及其向量存储到Milvus
+     * 将文本段及其向量存储到 Milvus
      */
     public String store(TextSegment textSegment) {
         if (embeddingModel == null || embeddingStore == null) {
@@ -85,34 +105,41 @@ public class EmbeddingService {
         Embedding embedding = embeddingModel.embed(textSegment).content();
         return embeddingStore.add(embedding, textSegment);
     }
-    
+
     public void storeAll(List<TextSegment> textSegments) {
         if (embeddingModel == null || embeddingStore == null) {
-             throw new RuntimeException("嵌入服务未就绪");
+            throw new RuntimeException("嵌入服务未就绪");
         }
         List<Embedding> embeddings = embeddingModel.embedAll(textSegments).content();
         embeddingStore.addAll(embeddings, textSegments);
     }
 
     /**
-     * 在Milvus中搜索相似文本段
+     * 在 Milvus 中搜索相似文本段
      */
-    public List<dev.langchain4j.store.embedding.EmbeddingMatch<TextSegment>> search(String query, int maxResults) {
+    public List<EmbeddingMatch<TextSegment>> search(String query, int maxResults) {
         if (embeddingModel == null || embeddingStore == null) {
-             throw new RuntimeException("嵌入服务未就绪");
+            throw new RuntimeException("嵌入服务未就绪");
         }
         Embedding queryEmbedding = embeddingModel.embed(query).content();
-        return embeddingStore.findRelevant(queryEmbedding, maxResults); // minimumScore default 0.0
+        return embeddingStore.findRelevant(queryEmbedding, maxResults);
     }
-    
+
     /**
-     * 在Milvus中搜索相似文本段（带分阈值）
+     * 在 Milvus 中搜索相似文本段（带分数阈值）
      */
-     public List<dev.langchain4j.store.embedding.EmbeddingMatch<TextSegment>> search(String query, int maxResults, double minScore) {
+    public List<EmbeddingMatch<TextSegment>> search(String query, int maxResults, double minScore) {
         if (embeddingModel == null || embeddingStore == null) {
-             throw new RuntimeException("嵌入服务未就绪");
+            throw new RuntimeException("嵌入服务未就绪");
         }
         Embedding queryEmbedding = embeddingModel.embed(query).content();
         return embeddingStore.findRelevant(queryEmbedding, maxResults, minScore);
+    }
+
+    /**
+     * 获取当前活动的 Embedding 提供商名称
+     */
+    public String getActiveProviderName() {
+        return providerFactory.getActiveEmbeddingProviderName();
     }
 }

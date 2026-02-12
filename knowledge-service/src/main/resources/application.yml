@@ -66,7 +66,38 @@ spring:
 
         import-check:
           enabled: false
-# LangChain4j配置
+# AI 模型提供商配置（策略模式）
+ai-model:
+  chat:
+    provider: ollama          # ollama / openai / gemini
+  embedding:
+    provider: ollama          # ollama / openai
+
+  # Ollama 提供商
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    chat-model: ${OLLAMA_MODEL:deepseek-r1:7b}
+    embedding-model: ${OLLAMA_EMBEDDING_MODEL:bge-m3}
+    temperature: 0.7
+    timeout: 60
+
+  # OpenAI（ChatGPT）提供商
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+    chat-model: ${OPENAI_MODEL:gpt-4o}
+    embedding-model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+    temperature: 0.7
+    timeout: 60
+
+  # Google Gemini 提供商
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    chat-model: ${GEMINI_MODEL:gemini-2.0-flash}
+    temperature: 0.7
+    timeout: 60
+
+# LangChain4j配置（保留供 Milvus 等组件使用）
 langchain4j:
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
@@ -205,3 +236,18 @@ history-guard:
         weight: 0.85
       - name: "笔记/野史"
         weight: 0.6
+
+# 书籍入库配置
+book-ingestion:
+  # 默认拆分策略: PARAGRAPH / FIXED_SIZE / CHAPTER_MARKER
+  default-split-strategy: PARAGRAPH
+  # FIXED_SIZE 模式的默认块大小（字符数）
+  default-chunk-size: 500
+  # FIXED_SIZE 模式的默认重叠字符数
+  default-chunk-overlap: 50
+  # 是否默认开启自动向量化
+  default-auto-vectorize: false
+  # 单次入库最大允许文本长度（字符数，0表示不限制）
+  max-content-length: 0
+  # 单次入库最大允许拆分块数（0表示不限制）
+  max-chunk-count: 0

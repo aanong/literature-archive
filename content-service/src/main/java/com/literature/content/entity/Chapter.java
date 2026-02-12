@@ -17,6 +17,8 @@ public class Chapter extends BaseEntity {
 
     private Integer orderNo;
 
+    private String content;
+
     private String status;
 
     public Long getId() {
@@ -49,6 +51,14 @@ public class Chapter extends BaseEntity {
 
     public void setOrderNo(Integer orderNo) {
         this.orderNo = orderNo;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getStatus() {

@@ -2,7 +2,7 @@ package com.literature.common.core.model;
 
 import java.util.Date;
 
-public class BaseEntity {
+public abstract class BaseEntity {
     private Date createTime;
 
     private String createBy;
