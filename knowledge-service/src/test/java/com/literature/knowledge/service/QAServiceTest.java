@@ -82,7 +82,7 @@ class QAServiceTest {
                 .thenAnswer(inv -> new HistoryGuardService.GuardedResponse(
                         inv.getArgument(0), List.of(), List.of(), List.of()));
 
-        String answer = qaService.ask(sessionId, "RAG Question");
+        String answer = qaService.ask(sessionId, "RAG Question", null);
 
         assertEquals("AI Answer", answer);
 

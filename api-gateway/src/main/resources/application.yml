@@ -2,6 +2,12 @@ server:
   port: 8080
 
 spring:
+  config:
+    import: "optional:nacos:api-gateway.yml"
+  
+  security:
+    jwt:
+      secret: ${JWT_SECRET:change-me-in-prod}
   application:
     name: api-gateway
   cloud:
@@ -59,6 +65,8 @@ security:
   jwt:
     issuer-uri: ${JWT_ISSUER_URI:http://user-service}
     jwk-set-uri: ${JWT_JWK_SET_URI:http://user-service/.well-known/jwks.json}
+
+
 
 literature:
   crypto:
