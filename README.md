@@ -7,16 +7,17 @@
 - **书目管理**：维护古籍的元数据、卷篇结构及版本。
 - **资源管理**：图片批量上传、文本（原文/译文/注释）导入与分段。
 - **图文映射**：左图右文的交互式映射编辑，确保古籍影像与文字精准匹配。
-- **审核发布**：多级审核流程，支持版本回滚与全量/增量发布。
-- **智能检索**：基于 Elasticsearch 的全文搜索，支持同义词与高亮。
-- **运营聊天**：包含推荐位管理及基于 IM 的运营会话功能。
+- **知识库 (RAG)**：基于 Milvus + LangChain4j 的古籍/科普知识检索增强生成。
+- **AI 伴读**：沉浸式阅读体验，支持上下文感知的 AI 问答助手。
+- **多端与运营**：Admin Portal (管理端) 与 User Web (读者端) 分离架构。
 
 ## 技术栈
 - **后端框架**：Java 17 / Spring Boot 3.2 / Spring Cloud 2023
+- **AI/LLM**：LangChain4j / Ollama / OpenAI / Milvus (向量数据库)
+- **前端框架**：Vue 3 + Element Plus (Admin) / Next.js 14 + Tailwind (User)
 - **微服务治理**：Nacos (注册中心/配置中心) / Gateway (网关) / Sentinel (限流)
-- **存储方案**：MySQL 8.0 / Redis 7.0 / MongoDB 6.0
+- **存储方案**：MySQL 8.0 / Redis 7.0 / MongoDB 6.0 / MinIO
 - **中间件**：Kafka 3.7 (消息队列) / Zookeeper
-- **搜索/对象存储**：Elasticsearch / MinIO (或 阿里云/七牛云 OSS)
 
 ## 项目结构
 ```text
@@ -24,17 +25,13 @@ literature-archive
 ├── api-gateway           # 统一网关与鉴权中心
 ├── common-core           # 核心公共模块 (响应封装、错误码、基础类)
 ├── starters              # 自定义 Spring Boot Starters
-│   ├── crypto-spring-boot-starter  # 加解密组件
-│   └── oss-spring-boot-starter     # 对象存储组件 (MinIO/Aliyun/Qiniu)
-├── user-service          # 用户与 RBAC 权限服务
+├── user-service          # 用户与 RBAC 权限服务 (JWT/RSA)
 ├── content-service       # 核心内容服务 (书目、章节、文本)
+├── knowledge-service     # 知识库与 AI 服务 (RAG, 向量检索)
 ├── asset-service         # 资源管理服务 (图片上传、素材库)
-├── mapping-service       # 图文映射逻辑服务
-├── publish-service       # 审核与发布流程服务
-├── search-service        # 检索与索引构建服务
-├── chat-service          # 聊天与消息管理服务
-├── ops-service           # 运营管理服务
-└── monitor-service       # 日志检索与监控视图
+├── admin-portal          # 管理后台前端 (Vue 3)
+├── user-web              # 读者端前端 (Next.js 14)
+└── ...(其他服务)
 ```
 
 ## 快速开始
@@ -69,6 +66,9 @@ mvn clean install
 - [x] 项目基础骨架搭建
 - [x] 统一响应与错误码规范
 - [x] 对象存储与加解密 Starter 实现
-- [ ] 书目与资源核心业务逻辑
+- [x] 知识库服务 (RAG) 与向量检索
+- [x] 核心内容服务 (Book/Chapter)
+- [x] Admin Portal 书籍摄入与管理
+- [x] User Web 沉浸式阅读器与 AI 伴读
 - [ ] 图文映射系统联调
 - [ ] 发布与索引自动化流程
