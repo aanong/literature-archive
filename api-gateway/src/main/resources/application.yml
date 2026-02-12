@@ -50,6 +50,10 @@ spring:
           uri: lb://monitor-service
           predicates:
             - Path=/api/admin/logs/**,/api/admin/monitor/**
+        - id: knowledge-service
+          uri: lb://knowledge-service
+          predicates:
+            - Path=/api/knowledge/**
 
 security:
   jwt:

@@ -16,6 +16,7 @@ public class AuthServerConfig {
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/actuator/**").permitAll()
             .requestMatchers("/api/admin/auth/**").permitAll()
+            .requestMatchers("/.well-known/jwks.json").permitAll()
             .anyRequest().authenticated())
         .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
         .sessionManagement(session -> session.sessionCreationPolicy(
