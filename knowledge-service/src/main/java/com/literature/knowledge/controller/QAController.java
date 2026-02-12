@@ -17,9 +17,9 @@ import java.util.List;
 @RequestMapping("/api/qa/sessions")
 @RequiredArgsConstructor
 public class QAController {
-    
+
     private final QAService qaService;
-    
+
     /**
      * 创建会话
      */
@@ -27,7 +27,7 @@ public class QAController {
     public ResponseEntity<QASession> createSession(@RequestBody CreateSessionRequest request) {
         return ResponseEntity.ok(qaService.createSession(request.getUserId(), request.getTitle()));
     }
-    
+
     /**
      * 获取用户会话列表
      */
@@ -35,7 +35,7 @@ public class QAController {
     public ResponseEntity<List<QASession>> getUserSessions(@RequestParam Long userId) {
         return ResponseEntity.ok(qaService.getUserSessions(userId));
     }
-    
+
     /**
      * 获取会话消息历史
      */
@@ -43,28 +43,29 @@ public class QAController {
     public ResponseEntity<List<QAMessage>> getSessionMessages(@PathVariable Long sessionId) {
         return ResponseEntity.ok(qaService.getSessionMessages(sessionId));
     }
-    
+
     /**
      * 提问
      */
     @PostMapping("/{sessionId}/ask")
     public ResponseEntity<String> ask(@PathVariable Long sessionId, @RequestBody AskRequest request) {
         try {
-            String answer = qaService.ask(sessionId, request.getQuestion());
+            String answer = qaService.ask(sessionId, request.getQuestion(), request.getContext());
             return ResponseEntity.ok(answer);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("提问失败: " + e.getMessage());
         }
     }
-    
+
     @Data
     public static class CreateSessionRequest {
         private Long userId;
         private String title;
     }
-    
+
     @Data
     public static class AskRequest {
         private String question;
+        private String context; // Current chapter content or selection
     }
 }

@@ -10,13 +10,13 @@ public class Book extends BaseEntity {
 
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
-    
+
     private String title;
-    
+
     private String author;
-    
+
     private String edition;
-    
+
     private String status;
 
     public Long getId() {
@@ -57,5 +57,16 @@ public class Book extends BaseEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @com.baomidou.mybatisplus.annotation.TableField(exist = false)
+    private java.util.List<Volume> volumes;
+
+    public java.util.List<Volume> getVolumes() {
+        return volumes;
+    }
+
+    public void setVolumes(java.util.List<Volume> volumes) {
+        this.volumes = volumes;
     }
 }

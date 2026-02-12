@@ -78,7 +78,7 @@ public class QAService {
      * 提问并获取回答
      */
     @Transactional
-    public String ask(Long sessionId, String question) {
+    public String ask(Long sessionId, String question, String manualContext) {
         QASession session = sessionMapper.selectById(sessionId);
         if (session == null) {
             throw new RuntimeException("会话不存在: " + sessionId);
@@ -91,12 +91,21 @@ public class QAService {
         userMsg.setContent(question);
         messageMapper.insert(userMsg);
 
-        // 2. RAG检索增强
-        List<String> relevantKnowledge = ragService.retrieveKnowledge(question, 3);
+        // 2. RAG检索增强 + 手动上下文
         String augmentedQuestion = question;
+        StringBuilder contextBuilder = new StringBuilder();
+
+        if (manualContext != null && !manualContext.isBlank()) {
+            contextBuilder.append("当前阅读内容:\n").append(manualContext).append("\n\n");
+        }
+
+        List<String> relevantKnowledge = ragService.retrieveKnowledge(question, 3);
         if (!relevantKnowledge.isEmpty()) {
-            String context = String.join("\n\n", relevantKnowledge);
-            augmentedQuestion = String.format("基于以下参考资料回答问题:\n%s\n\n问题: %s", context, question);
+            contextBuilder.append("相关知识库:\n").append(String.join("\n\n", relevantKnowledge)).append("\n\n");
+        }
+
+        if (contextBuilder.length() > 0) {
+            augmentedQuestion = String.format("基于以下参考资料回答问题:\n%s\n\n问题: %s", contextBuilder.toString(), question);
         }
 
         // 3. 构建对话历史上下文

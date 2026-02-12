@@ -48,4 +48,15 @@ public class Volume extends BaseEntity {
     public void setOrderNo(Integer orderNo) {
         this.orderNo = orderNo;
     }
+
+    @com.baomidou.mybatisplus.annotation.TableField(exist = false)
+    private java.util.List<Chapter> chapters;
+
+    public java.util.List<Chapter> getChapters() {
+        return chapters;
+    }
+
+    public void setChapters(java.util.List<Chapter> chapters) {
+        this.chapters = chapters;
+    }
 }
