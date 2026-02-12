@@ -4,34 +4,15 @@ server:
 spring:
   application:
     name: asset-service
-  datasource:
-    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/iot_cen?useSSL=false&serverTimezone=UTC}
-    username: ${MYSQL_USER:root}
-    password: ${MYSQL_PASSWORD:root}
-# MyBatis-Plus 配置
-mybatis-plus:
-  mapper-locations: classpath*:/mapper/**/*.xml
-  configuration:
-    map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  global-config:
-    db-config:
-      id-type: auto
+  config:
+    import: "optional:nacos:asset-service.yml"
   cloud:
     nacos:
-      discovery:
-        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
       config:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${JWT_ISSUER_URI:literature-auth}
-
-storage:
-  type: ${STORAGE_TYPE:object}
-  endpoint: ${STORAGE_ENDPOINT:http://127.0.0.1:9000}
-  access-key: ${STORAGE_ACCESS_KEY:minio}
-  secret-key: ${STORAGE_SECRET_KEY:minio123}
-  bucket: ${STORAGE_BUCKET:docs}
+        file-extension: yaml
+        shared-configs:
+          - data-id: literature-common.yaml
+            refresh: true
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}

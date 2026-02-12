@@ -13,7 +13,7 @@ export interface TokenResponse {
 // 登录接口
 export function login(data: LoginRequest) {
     return request<any, TokenResponse>({
-        url: '/admin/auth/login',
+        url: '/api/admin/auth/login',
         method: 'post',
         data
     })

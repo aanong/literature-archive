@@ -4,16 +4,15 @@ server:
 spring:
   application:
     name: search-service
+  config:
+    import: "optional:nacos:search-service.yml"
   cloud:
     nacos:
-      discovery:
-        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
       config:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
-  elasticsearch:
-    uris: ${ES_URIS:http://127.0.0.1:9200}
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${JWT_ISSUER_URI:literature-auth}
+        file-extension: yaml
+        shared-configs:
+          - data-id: literature-common.yaml
+            refresh: true
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}

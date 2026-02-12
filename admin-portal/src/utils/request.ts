@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 
 // 创建 axios 实例
 const service = axios.create({
-    baseURL: '/api', // Vite 代理转发到 Gateway
+    baseURL: '', // Vite Proxy configured with /api prefix
     timeout: 60000 // 请求超时时间
 })
 

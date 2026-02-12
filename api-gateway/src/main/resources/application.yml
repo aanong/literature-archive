@@ -2,76 +2,17 @@ server:
   port: 8080
 
 spring:
-  config:
-    import: "optional:nacos:api-gateway.yml"
-  
-  security:
-    jwt:
-      secret: ${JWT_SECRET:change-me-in-prod}
   application:
     name: api-gateway
+  config:
+    import: "optional:nacos:api-gateway.yml"
   cloud:
     nacos:
       discovery:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
       config:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
-    gateway:
-      default-filters:
-        - AddRequestHeader=X-Trace-Id, ${traceId}
-      routes:
-        - id: content-service
-          uri: lb://content-service
-          predicates:
-            - Path=/api/admin/books/**,/api/admin/volumes/**,/api/admin/chapters/**
-        - id: asset-service
-          uri: lb://asset-service
-          predicates:
-            - Path=/api/admin/assets/**
-        - id: mapping-service
-          uri: lb://mapping-service
-          predicates:
-            - Path=/api/admin/mappings/**
-        - id: publish-service
-          uri: lb://publish-service
-          predicates:
-            - Path=/api/admin/reviews/**,/api/admin/publish/**
-        - id: search-service
-          uri: lb://search-service
-          predicates:
-            - Path=/api/admin/search/**
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/api/admin/users/**,/api/admin/roles/**,/api/admin/permissions/**
-        - id: ops-service
-          uri: lb://ops-service
-          predicates:
-            - Path=/api/admin/ops/**
-        - id: chat-service
-          uri: lb://chat-service
-          predicates:
-            - Path=/api/admin/chat/**
-        - id: monitor-service
-          uri: lb://monitor-service
-          predicates:
-            - Path=/api/admin/logs/**,/api/admin/monitor/**
-        - id: knowledge-service
-          uri: lb://knowledge-service
-          predicates:
-            - Path=/api/knowledge/**
-
-security:
-  jwt:
-    issuer-uri: ${JWT_ISSUER_URI:http://user-service}
-    jwk-set-uri: ${JWT_JWK_SET_URI:http://user-service/.well-known/jwks.json}
-
-
-
-literature:
-  crypto:
-    http:
-      enabled: true
-      sign-key: ${CRYPTO_SIGN_KEY:changeme}
-      encrypt-key: ${CRYPTO_ENCRYPT_KEY:changeme}
-      replay-window-seconds: 300
+        file-extension: yaml
+        shared-configs:
+          - data-id: literature-common.yaml
+            refresh: true
