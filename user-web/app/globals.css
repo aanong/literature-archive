@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 基础色 - 宣纸白 / 绢帛色 */
+  --background: #fcf9f2;
+  --foreground: #2c2521;
+  /* 墨褐 */
+
+  --card: #ffffff;
+  --card-foreground: #2c2521;
+
+  --popover: #fcf9f2;
+  --popover-foreground: #2c2521;
+
+  --primary: #2c2521;
+  /* 墨色 */
+  --primary-foreground: #cfb078;
+  /* 泥金 */
+
+  --secondary: #4a6c6f;
+  /* 汝窑青 */
+  --secondary-foreground: #fcf9f2;
+
+  --muted: #e6e0d5;
+  /* 浅灰褐 */
+  --muted-foreground: #5d5d5d;
+  /* 灰墨 */
+
+  --accent: #cfb078;
+  /* 泥金 */
+  --accent-foreground: #2c2521;
+
+  --destructive: #bc5e52;
+  /* 朱砂 */
+  --destructive-foreground: #fcf9f2;
+
+  --border: #e6e0d5;
+  --input: #e6e0d5;
+  --ring: #cfb078;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1a1a;
+    --foreground: #fcf9f2;
+    /* Dark mode adjustments would go here, keeping simple for now to enforce the paper aesthetic */
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmNmOWYyIi8+CjxwYXRoIGQ9Ik0wIDBMNCA0Wk00IDBMMCA0WiIgc3Ryb2tlPSIjZjBlYmU1IiBzdHJva2Utd2lkdGg9IjAuNSIvPgo8L3N2Zz4=');
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0b8ad;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a39b90;
 }
