@@ -29,6 +29,7 @@ public class SecurityConfig {
         .authorizeExchange(exchange -> exchange
             .pathMatchers("/actuator/**").permitAll()
             .pathMatchers("/api/admin/auth/**").permitAll()
+            .pathMatchers("/gateway/security/**").permitAll()
             .anyExchange().authenticated())
         .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
         .build();

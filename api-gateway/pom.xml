@@ -45,5 +45,10 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>com.literature</groupId>
+      <artifactId>literature-common-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>
