@@ -1,74 +1,70 @@
-# Literature Archive (古籍/诗书阅读系统)
+# 云章·经籍 (Literature Archive)
 
-## 项目概述
-本项目是一个基于 **Spring Cloud Alibaba** 微服务架构的古籍/诗书阅读后台管理系统。旨在支撑书目内容的生产、发布、审核、图文映射、质量校验与运营管理。
+## 项目简介
+`云章·经籍` 是一个专注于古籍数字化、知识图谱构建与智能化阅读的数字人文平台。
 
-## 核心功能
-- **书目管理**：维护古籍的元数据、卷篇结构及版本。
-- **资源管理**：图片批量上传、文本（原文/译文/注释）导入与分段。
-- **图文映射**：左图右文的交互式映射编辑，确保古籍影像与文字精准匹配。
-- **知识库 (RAG)**：基于 Milvus + LangChain4j 的古籍/科普知识检索增强生成。
-- **AI 伴读**：沉浸式阅读体验，支持上下文感知的 AI 问答助手。
-- **多端与运营**：Admin Portal (管理端) 与 User Web (读者端) 分离架构。
+本项目致力于：
+1. **古籍数字化**：支持 TEI/Markdown 格式的古籍录入与展示。
+2. **语义增强**：利用大型语言模型 (LLM) 进行古文断句、翻译、实体识别。
+3. **知识图谱**：构建人物、地名、职官等实体关系网络（RAG系统）。
+4. **沉浸阅读**：提供宋朝古风审美的阅读体验。
 
-## 技术栈
-- **后端框架**：Java 17 / Spring Boot 3.2 / Spring Cloud 2023
-- **AI/LLM**：LangChain4j / Ollama / OpenAI / Milvus (向量数据库)
-- **前端框架**：Vue 3 + Element Plus (Admin) / Next.js 14 + Tailwind (User)
-- **微服务治理**：Nacos (注册中心/配置中心) / Gateway (网关) / Sentinel (限流)
-- **存储方案**：MySQL 8.0 / Redis 7.0 / MongoDB 6.0 / MinIO
-- **中间件**：Kafka 3.7 (消息队列) / Zookeeper
+---
 
-## 项目结构
-```text
-literature-archive
-├── api-gateway           # 统一网关与鉴权中心
-├── common-core           # 核心公共模块 (响应封装、错误码、基础类)
-├── starters              # 自定义 Spring Boot Starters
-├── user-service          # 用户与 RBAC 权限服务 (JWT/RSA)
-├── content-service       # 核心内容服务 (书目、章节、文本)
-├── knowledge-service     # 知识库与 AI 服务 (RAG, 向量检索)
-├── asset-service         # 资源管理服务 (图片上传、素材库)
-├── admin-portal          # 管理后台前端 (Vue 3)
-├── user-web              # 读者端前端 (Next.js 14)
-└── ...(其他服务)
-```
+## 文档索引
+
+详细文档请参考 `docs` 目录：
+
+### 📚 产品文档
+- [产品需求文档 (PRD)](docs/prd/product_requirement_document.md): 包含功能规格、后台原型、数据结构设计。
+
+### 🛠️ 部署运维
+- [后端服务部署指南](docs/deployment/backend_services.md): Spring Boot 微服务、Nacos、MySQL/Redis 环境搭建。
+- [管理后台部署指南](docs/deployment/admin_portal.md): Admin Portal (Vue3) 构建与 Nginx 部署。
+- [阅读前端部署指南](docs/deployment/user_web.md): User Web (Next.js) 部署说明。
+
+### 📖 用户手册
+- [用户操作手册](docs/user_guide/user_manual.md): 读者与管理员的操作指引。
+
+---
 
 ## 快速开始
 
-### 1. 环境准备
-使用 Docker Compose 启动基础架构：
-```bash
-docker-compose up -d
-```
-内置服务包含：Nacos, MySQL, Redis, MongoDB, Kafka, Zookeeper。
+### 前置要求
+- JDK 17+
+- Node.js 18+ (pnpm 推荐)
+- Docker & Docker Compose
+- MySQL 8.0+
+- Redis 6.0+
+- Nacos 2.x
 
-### 2. 编译项目
-在根目录下执行 Maven 安装：
-```bash
-mvn clean install
-```
+### 本地开发
 
-### 3. 本地配置
-在各模块的 `bootstrap.yml` 中或通过环境变量设置以下参数（参考 `.env` 文件）：
-- `NACOS_ADDR`: Nacos 访问地址
-- `MYSQL_URL`: 数据库连接
-- `REDIS_PASSWORD`: Redis 密码
+1. **启动基础设施**
+   ```bash
+   docker-compose up -d mysql redis nacos minio
+   ```
 
-## 开发规范
-遵循项目核心原则（详见 `.cursorrules`）：
-1. **统一响应**：API 必须封装在 `ApiResponse<T>` 中。
-2. **错误处理**：使用 `ErrorCode` 常量，成功码为 `0000`。
-3. **依赖注入**：优先使用构造函数注入。
-4. **语言要求**：代码注释、文档及反馈必须使用 **中文**。
+2. **启动后端服务**
+   - 导入 `docs/nacos_config_plan.md` 中的配置到 Nacos。
+   - 依次启动 `user-service`, `content-service`, `api-gateway` 等核心服务。
 
-## 里程碑
-- [x] 项目基础骨架搭建
-- [x] 统一响应与错误码规范
-- [x] 对象存储与加解密 Starter 实现
-- [x] 知识库服务 (RAG) 与向量检索
-- [x] 核心内容服务 (Book/Chapter)
-- [x] Admin Portal 书籍摄入与管理
-- [x] User Web 沉浸式阅读器与 AI 伴读
-- [ ] 图文映射系统联调
-- [ ] 发布与索引自动化流程
+3. **启动前端**
+   ```bash
+   # 管理后台
+   cd admin-portal
+   npm install && npm run dev
+
+   # 阅读前台
+   cd user-web
+   npm install && npm run dev
+   ```
+
+## 技术栈
+
+- **后端**: Spring Cloud Alibaba, Mybatis-Plus, LangChain4j
+- **前端**: Next.js (Tailwind CSS), Vue 3 (Element Plus)
+- **AI/数据**: Milvus (向量库), Ollama/OpenAI (大模型)
+
+## 版权说明
+© 2026 云章书院 · 承道以文
