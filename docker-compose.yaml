@@ -142,6 +142,25 @@ services:
     networks:
       - literature-network
 
+  seata-server:
+    image: seataio/seata-server:2.0.0
+    container_name: seata-server
+    ports:
+      - "8091:8091"
+      - "7091:7091"
+    environment:
+      - SEATA_IP=${SEATA_IP:-127.0.0.1}
+      - SEATA_PORT=8091
+      - STORE_MODE=db
+      - SEATA_CONFIG_NAME=file:/seata-server/resources/application
+    volumes:
+      - ./seata-config:/seata-server/resources
+    depends_on:
+      - mysql
+      - nacos
+    networks:
+      - literature-network
+
 networks:
   literature-network:
     driver: bridge

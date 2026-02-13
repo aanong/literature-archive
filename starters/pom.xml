@@ -17,5 +17,7 @@
     <module>oss-spring-boot-starter</module>
     <module>sharding-spring-boot-starter</module>
     <module>logging-spring-boot-starter</module>
+    <module>lock-spring-boot-starter</module>
+    <module>transaction-spring-boot-starter</module>
   </modules>
 </project>
