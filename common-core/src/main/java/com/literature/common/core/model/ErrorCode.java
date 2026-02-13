@@ -10,6 +10,7 @@ public final class ErrorCode {
   public static final String CONFLICT = "4009";
   public static final String UNAUTHORIZED = "4010";
   public static final String FORBIDDEN = "4030";
+  public static final String TOO_MANY_REQUESTS = "4029";
   public static final String INTERNAL_ERROR = "5000";
   public static final String DOWNSTREAM_ERROR = "5001";
 }

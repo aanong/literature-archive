@@ -129,14 +129,14 @@ public class HybridSearchService {
                         hit.textSnippet = match.embedded() != null ? truncateContent(match.embedded().text(), 200) : "";
                         // 从元数据中提取知识条目 ID
                         if (match.embedded() != null && match.embedded().metadata() != null) {
-                            String idStr = match.embedded().metadata().getString("id");
+                            String idStr = match.embedded().metadata().get("id");
                             if (idStr != null) {
                                 try {
                                     hit.knowledgeItemId = Long.parseLong(idStr);
                                 } catch (NumberFormatException ignored) {
                                 }
                             }
-                            hit.title = match.embedded().metadata().getString("title");
+                            hit.title = match.embedded().metadata().get("title");
                         }
                         return hit;
                     })

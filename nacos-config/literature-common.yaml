@@ -1,0 +1,40 @@
+# Sentinel 通用配置 - 共享配置文件
+# 导入方式: Nacos 控制台 -> 配置管理 -> 配置列表 -> 导入配置
+# Data ID: literature-common.yaml
+# Group: DEFAULT_GROUP
+
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: ${SENTINEL_DASHBOARD:127.0.0.1:8858}
+        port: 8719           # 与 Dashboard 通信的端口
+      eager: true             # 启动即注册
+      datasource:             # 规则持久化到 Nacos
+        flow:
+          nacos:
+            server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+            data-id: ${spring.application.name}-sentinel-flow
+            group-id: SENTINEL_GROUP
+            rule-type: flow
+        degrade:
+          nacos:
+            server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+            data-id: ${spring.application.name}-sentinel-degrade
+            group-id: SENTINEL_GROUP
+            rule-type: degrade
+
+    # LoadBalancer 配置
+    loadbalancer:
+      retry:
+        enabled: true        # 开启重试
+        max-retries-on-same-service-instance: 1
+        max-retries-on-next-service-instance: 2
+      cache:
+        enabled: true         # 缓存服务列表
+        ttl: 30s
+
+# Feign + Sentinel 熔断整合
+feign:
+  sentinel:
+    enabled: true   # 自动为 Feign 接口开启熔断
