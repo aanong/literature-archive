@@ -1,35 +1,63 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
+  max-width: 100vw;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   font-weight: normal;
+  background-color: var(--color-background-soft);
+  position: relative;
 }
 
+/* 覆盖 Element Plus 默认蓝色主题 */
+:root {
+  --el-color-primary: var(--vt-c-indigo);
+  --el-color-primary-light-3: #759295;
+  --el-color-primary-light-5: #92abb0;
+  --el-color-primary-light-7: #b3c5c9;
+  --el-color-primary-light-8: #c6d5d8;
+  --el-color-primary-light-9: #dfe9eb;
+  --el-color-primary-dark-2: #3a5457;
+
+  --el-color-success: var(--vt-c-green-song);
+  --el-color-warning: var(--vt-c-gold-song);
+  --el-color-danger: var(--vt-c-red-song);
+
+  /* 调整 Element Plus 字体为宋体优先 */
+  --el-font-family: 'Noto Serif SC', 'Songti SC', 'Source Han Serif SC', 'SimSun', serif;
+  --el-bg-color: var(--color-background);
+  --el-bg-color-overlay: var(--color-background);
+  --el-text-color-primary: var(--color-heading);
+  --el-border-color-lighter: #e6e0d5;
+}
+
+/* 链接样式 */
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: var(--color-primary);
   transition: 0.4s;
   padding: 3px;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    color: var(--color-accent);
+    background-color: transparent;
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+/* 添加纸张纹理背景图（可选） */
+#app::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZjdmNGVkIi8+CjxwYXRoIGQ9Ik0wIDBMNCA0Wk00IDBMMCA0WiIgc3Ryb2tlPSIjZjBlYmU1IiBzdHJva2Utd2lkdGg9IjAuNSIvPgo8L3N2Zz4=');
+  /* 简单的微弱纹理 */
+  opacity: 0.4;
+  pointer-events: none;
 }

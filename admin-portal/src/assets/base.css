@@ -1,31 +1,43 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/* 宋朝审美古风调色板 */
 :root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
+  /* 基础色 - 宣纸白 / 绢帛色 */
+  --vt-c-white: #f7f4ed; 
+  --vt-c-white-soft: #f0ebe5;
+  --vt-c-white-mute: #ded9d1;
 
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
+  /* 文字色 - 墨色 */
+  --vt-c-black: #2b2b2b;
+  --vt-c-black-soft: #3d3d3d;
+  --vt-c-black-mute: #595959;
 
-  --vt-c-indigo: #2c3e50;
+  /* 主题色 - 千山翠 / 汝窑青 / 朱砂 */
+  --vt-c-indigo: #4a6c6f; /* 类似汝窑天青偏深 */
+  --vt-c-green-song: #6b8273; /* 柳绿/山色 */
+  --vt-c-red-song: #bc5e52; /* 赭石/朱砂 */
+  --vt-c-gold-song: #cfb078; /* 泥金 */
 
+  /* 分割线 */
   --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
   --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
   --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
   --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
 
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
+  --vt-c-text-light-1: #2c2c2c;
+  --vt-c-text-light-2: #555555;
+  --vt-c-text-dark-1: #f2f2f2;
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
 
-/* semantic color variables for this project */
+/* 语义化变量 */
 :root {
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
+
+  --color-primary: var(--vt-c-indigo);
+  --color-secondary: var(--vt-c-green-song);
+  --color-accent: var(--vt-c-red-song);
+  --color-highlight: var(--vt-c-gold-song);
 
   --color-border: var(--vt-c-divider-light-2);
   --color-border-hover: var(--vt-c-divider-light-1);
@@ -34,20 +46,6 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
-
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
-  }
 }
 
 *,
@@ -62,25 +60,27 @@ body {
   min-height: 100vh;
   color: var(--color-text);
   background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
+  transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: 'Noto Serif SC', 'Songti SC', 'Source Han Serif SC', 'SimSun', serif; /* 优先使用衬线体/宋体 */
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar Styling for Webkit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background-soft);
+}
+::-webkit-scrollbar-thumb {
+  background: #c0b8ad;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a39b90;
 }
