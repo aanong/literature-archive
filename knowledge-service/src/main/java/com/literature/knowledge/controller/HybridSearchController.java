@@ -31,9 +31,9 @@ public class HybridSearchController {
      */
     @GetMapping
     public ApiResponse<List<HybridSearchResult>> hybridSearch(
-            @RequestParam String query,
-            @RequestParam(defaultValue = "10") int maxResults,
-            @RequestParam(defaultValue = "0.7") double semanticWeight) {
+            @RequestParam("query") String query,
+            @RequestParam(name = "maxResults", defaultValue = "10") int maxResults,
+            @RequestParam(name = "semanticWeight", defaultValue = "0.7") double semanticWeight) {
         List<HybridSearchResult> results = hybridSearchService.search(query, maxResults, semanticWeight);
         return ApiResponse.success(results, null);
     }

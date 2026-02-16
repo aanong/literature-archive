@@ -39,6 +39,12 @@ const router = createRouter({
             name: 'knowledge-ingest',
             component: () => import('../views/knowledge/IngestView.vue'),
             meta: { requiresAuth: true, title: '入库校验' }
+        },
+        {
+            path: '/chat/sessions',
+            name: 'chat-sessions',
+            component: () => import('../views/chat/ChatView.vue'),
+            meta: { requiresAuth: true, title: '清谈雅集' }
         }
     ]
 })

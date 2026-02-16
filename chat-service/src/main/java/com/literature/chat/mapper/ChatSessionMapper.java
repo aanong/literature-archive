@@ -37,6 +37,7 @@ public interface ChatSessionMapper extends BaseMapper<ChatSession> {
     IPage<ChatSession> selectByMemberUserId(
             Page<ChatSession> page,
             @Param("userId") Long userId,
+            @Param("memberType") String memberType,
             @Param("status") String status);
 
     /**
@@ -49,4 +50,13 @@ public interface ChatSessionMapper extends BaseMapper<ChatSession> {
     ChatSession selectPrivateSession(
             @Param("user1") Long user1,
             @Param("user2") Long user2);
+
+    /**
+     * 查询两个用户（带类型）之间的私聊会话
+     */
+    ChatSession selectPrivateSessionByIdentity(
+            @Param("user1") Long user1,
+            @Param("type1") String type1,
+            @Param("user2") Long user2,
+            @Param("type2") String type2);
 }

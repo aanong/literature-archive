@@ -7,6 +7,7 @@ import com.literature.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,9 +34,10 @@ public class InternalUserController {
     @GetMapping("/{userId}")
     public ApiResponse<UserDTO> getUserById(
             @PathVariable("userId") Long userId,
+            @RequestParam(value = "userType", required = false) String userType,
             HttpServletRequest request) {
         
-        UserDTO user = userService.getUserById(userId);
+        UserDTO user = userService.getUserById(userId, userType);
         if (user == null) {
             return ApiResponse.error(
                 ErrorCode.NOT_FOUND,
@@ -55,9 +57,10 @@ public class InternalUserController {
     @GetMapping("/username/{username}")
     public ApiResponse<UserDTO> getUserByUsername(
             @PathVariable("username") String username,
+            @RequestParam(value = "userType", required = false) String userType,
             HttpServletRequest request) {
         
-        UserDTO user = userService.getUserByUsername(username);
+        UserDTO user = userService.getUserByUsername(username, userType);
         if (user == null) {
             return ApiResponse.error(
                 ErrorCode.NOT_FOUND,

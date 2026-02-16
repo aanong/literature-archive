@@ -48,14 +48,23 @@ public class JwtTokenService {
   }
 
   public String issueToken(String subject, List<String> permissions) {
+    return issueToken(subject, permissions, "ADMIN", null);
+  }
+
+  public String issueToken(String subject, List<String> permissions, String userType, Long userId) {
     Instant now = Instant.now();
-    return Jwts.builder()
+    var builder = Jwts.builder()
         .header().add("kid", rsaJwk.getKeyID()).and()
         .issuer(issuer)
         .subject(subject)
         .claim("permissions", permissions)
+        .claim("userType", userType)
         .issuedAt(Date.from(now))
-        .expiration(Date.from(now.plus(expireMinutes, ChronoUnit.MINUTES)))
+        .expiration(Date.from(now.plus(expireMinutes, ChronoUnit.MINUTES)));
+    if (userId != null) {
+      builder.claim("userId", userId);
+    }
+    return builder
         .signWith(rsaKeyProperties.privateKey(), Jwts.SIG.RS256)
         .compact();
   }

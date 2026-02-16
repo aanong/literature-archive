@@ -7,6 +7,7 @@
         <id column="id" property="id"/>
         <result column="session_id" property="sessionId"/>
         <result column="user_id" property="userId"/>
+        <result column="member_type" property="memberType"/>
         <result column="role" property="role"/>
         <result column="nickname" property="nickname"/>
         <result column="joined_at" property="joinedAt"/>
@@ -15,7 +16,7 @@
 
     <!-- 基础列 -->
     <sql id="Base_Column_List">
-        id, session_id, user_id, role, nickname, joined_at, last_read_at
+        id, session_id, user_id, member_type, role, nickname, joined_at, last_read_at
     </sql>
 
     <!-- 根据会话ID查询所有成员 -->
@@ -54,6 +55,15 @@
         FROM chat_session_members
         WHERE session_id = #{sessionId}
           AND user_id = #{userId}
+    </select>
+
+    <!-- 检查用户（带类型）是否是会话成员 -->
+    <select id="existsBySessionIdAndIdentity" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM chat_session_members
+        WHERE session_id = #{sessionId}
+          AND user_id = #{userId}
+          AND member_type = #{memberType}
     </select>
 
     <!-- 删除会话成员 -->

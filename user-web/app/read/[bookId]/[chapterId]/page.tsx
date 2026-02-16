@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import { serverApi } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft, Menu, MessageSquare } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 import Link from "next/link";
-import { AIChat } from "@/components/AIChat";
 
 interface ChapterContent {
     id: number;
@@ -89,9 +88,6 @@ export default async function ReadPage({
                     ) : <div />}
                 </div>
             </main>
-
-            {/* AI 伴读悬浮组件 */}
-            <AIChat userId={1} context={chapter.content} />
         </div>
     );
 }

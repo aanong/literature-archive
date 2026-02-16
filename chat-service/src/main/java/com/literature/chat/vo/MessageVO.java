@@ -11,6 +11,7 @@ public class MessageVO {
     private String id;
     private String sessionId;
     private String senderId;
+    private String senderType;
     private String senderName;
     private String senderAvatar;
     private String content;
@@ -28,6 +29,7 @@ public class MessageVO {
         vo.setId(String.valueOf(message.getId()));
         vo.setSessionId(String.valueOf(message.getSessionId()));
         vo.setSenderId(String.valueOf(message.getSenderId()));
+        vo.setSenderType(message.getSenderType());
         vo.setContent(message.getContent());
         vo.setContentType(message.getContentType());
         vo.setStatus(message.getStatus());
@@ -69,6 +71,14 @@ public class MessageVO {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
+    }
+
+    public String getSenderType() {
+        return senderType;
+    }
+
+    public void setSenderType(String senderType) {
+        this.senderType = senderType;
     }
 
     public String getSenderAvatar() {

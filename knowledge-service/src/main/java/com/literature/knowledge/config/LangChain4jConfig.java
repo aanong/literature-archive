@@ -14,28 +14,28 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class LangChain4jConfig {
     
-    @Value("${langchain4j.ollama.base-url}")
+    @Value("${langchain4j.ollama.base-url:http://localhost:11434}")
     private String ollamaBaseUrl;
-    
-    @Value("${langchain4j.ollama.chat-model.model-name}")
+
+    @Value("${langchain4j.ollama.chat-model.model-name:deepseek-r1:7b}")
     private String chatModelName;
-    
-    @Value("${langchain4j.ollama.chat-model.temperature}")
+
+    @Value("${langchain4j.ollama.chat-model.temperature:0.7}")
     private Double temperature;
-    
-    @Value("${langchain4j.ollama.embedding-model.model-name}")
+
+    @Value("${langchain4j.ollama.embedding-model.model-name:bge-m3}")
     private String embeddingModelName;
-    
-    @Value("${langchain4j.milvus.host}")
+
+    @Value("${langchain4j.milvus.host:localhost}")
     private String milvusHost;
-    
-    @Value("${langchain4j.milvus.port}")
+
+    @Value("${langchain4j.milvus.port:19530}")
     private Integer milvusPort;
-    
-    @Value("${langchain4j.milvus.collection-name}")
+
+    @Value("${langchain4j.milvus.collection-name:literature_segment}")
     private String collectionName;
-    
-    @Value("${langchain4j.milvus.dimension}")
+
+    @Value("${langchain4j.milvus.dimension:1024}")
     private Integer dimension;
     
     // Getter方法供Service层使用

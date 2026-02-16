@@ -38,7 +38,7 @@ public class AuthService {
     }
 
     List<String> permissions = permissionMapper.findPermissionCodesByUserId(account.getId());
-    String token = jwtTokenService.issueToken(account.getUsername(), permissions);
+    String token = jwtTokenService.issueToken(account.getUsername(), permissions, "ADMIN", account.getId());
     return new TokenResponse(token, jwtTokenService.getExpireMinutes() * 60);
   }
 }

@@ -48,7 +48,7 @@ public class KnowledgeController {
      * 获取知识条目详情
      */
     @GetMapping("/{id}")
-    public ResponseEntity<KnowledgeItem> get(@PathVariable Long id) {
+    public ResponseEntity<KnowledgeItem> get(@PathVariable("id") Long id) {
         return knowledgeService.getKnowledgeItem(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -58,7 +58,7 @@ public class KnowledgeController {
      * 更新知识条目
      */
     @PutMapping("/{id}")
-    public ResponseEntity<KnowledgeItem> update(@PathVariable Long id, @RequestBody KnowledgeItem item) {
+    public ResponseEntity<KnowledgeItem> update(@PathVariable("id") Long id, @RequestBody KnowledgeItem item) {
         try {
             return ResponseEntity.ok(knowledgeService.updateKnowledgeItem(id, item));
         } catch (RuntimeException e) {
@@ -70,7 +70,7 @@ public class KnowledgeController {
      * 删除知识条目
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         knowledgeService.deleteKnowledgeItem(id);
         return ResponseEntity.ok().build();
     }
@@ -79,7 +79,7 @@ public class KnowledgeController {
      * 根据书目查询
      */
     @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<KnowledgeItem>> getByBook(@PathVariable Long bookId) {
+    public ResponseEntity<List<KnowledgeItem>> getByBook(@PathVariable("bookId") Long bookId) {
         return ResponseEntity.ok(knowledgeService.findByBookId(bookId));
     }
 
@@ -87,7 +87,7 @@ public class KnowledgeController {
      * 向量化知识条目
      */
     @PostMapping("/{id}/vectorize")
-    public ResponseEntity<Void> vectorize(@PathVariable Long id) {
+    public ResponseEntity<Void> vectorize(@PathVariable("id") Long id) {
         try {
             knowledgeService.vectorizeKnowledgeItem(id);
             return ResponseEntity.ok().build();
@@ -100,7 +100,7 @@ public class KnowledgeController {
      * 关键词搜索
      */
     @GetMapping("/search")
-    public ResponseEntity<List<KnowledgeItem>> search(@RequestParam String keyword) {
+    public ResponseEntity<List<KnowledgeItem>> search(@RequestParam("keyword") String keyword) {
         return ResponseEntity.ok(knowledgeService.search(keyword));
     }
 

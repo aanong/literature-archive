@@ -17,6 +17,17 @@ export const serverApi = axios.create({
     timeout: 60000,
 });
 
+api.interceptors.request.use((config) => {
+    if (typeof window !== "undefined") {
+        const token = window.localStorage.getItem("token");
+        if (token) {
+            config.headers = config.headers || {};
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    }
+    return config;
+});
+
 // 响应拦截器 (客户端)
 api.interceptors.response.use(
     (response) => {
@@ -28,6 +39,10 @@ api.interceptors.response.use(
         return res.data;
     },
     (error) => {
+        if (error?.response?.status === 401 && typeof window !== "undefined") {
+            window.localStorage.removeItem("token");
+            window.localStorage.removeItem("tokenExpireAt");
+        }
         console.error("Network Error:", error);
         return Promise.reject(error);
     }

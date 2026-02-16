@@ -15,7 +15,7 @@ spring:
         file-extension: yaml
         username: nacos
         password: nacos
-        namespace: literature-dev
+        namespace: ${NACOS_NAMESPACE:}
         shared-configs:
           - data-id: literature-common.yaml
             refresh: true
@@ -23,4 +23,4 @@ spring:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
         username: nacos
         password: nacos
-        namespace: literature-dev
+        namespace: ${NACOS_NAMESPACE:}

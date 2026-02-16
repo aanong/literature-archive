@@ -7,6 +7,7 @@
         <id column="id" property="id"/>
         <result column="session_id" property="sessionId"/>
         <result column="sender_id" property="senderId"/>
+        <result column="sender_type" property="senderType"/>
         <result column="content" property="content"/>
         <result column="content_type" property="contentType"/>
         <result column="status" property="status"/>
@@ -17,7 +18,7 @@
 
     <!-- 基础列 -->
     <sql id="Base_Column_List">
-        id, session_id, sender_id, content, content_type, status, reply_to_id, extra, created_at
+        id, session_id, sender_id, sender_type, content, content_type, status, reply_to_id, extra, created_at
     </sql>
 
     <!-- 分页查询会话消息（按时间倒序） -->

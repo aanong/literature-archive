@@ -18,6 +18,8 @@ public class SecurityConfig {
         .authorizeExchange(exchange -> exchange
             .pathMatchers("/actuator/**").permitAll()
             .pathMatchers("/api/admin/auth/**").permitAll()
+            .pathMatchers("/api/auth/login").permitAll()
+            .pathMatchers("/api/auth/register").permitAll()
             .pathMatchers("/api/content/**").permitAll()
             .pathMatchers("/gateway/security/**").permitAll()
             .pathMatchers("/.well-known/jwks.json").permitAll()

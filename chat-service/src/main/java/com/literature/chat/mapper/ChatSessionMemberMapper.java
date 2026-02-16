@@ -43,6 +43,14 @@ public interface ChatSessionMemberMapper extends BaseMapper<ChatSessionMember> {
             @Param("userId") Long userId);
 
     /**
+     * 检查用户（带类型）是否是会话成员
+     */
+    boolean existsBySessionIdAndIdentity(
+            @Param("sessionId") Long sessionId,
+            @Param("userId") Long userId,
+            @Param("memberType") String memberType);
+
+    /**
      * 删除会话成员
      */
     int deleteBySessionIdAndUserId(

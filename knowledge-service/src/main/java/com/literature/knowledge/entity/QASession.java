@@ -16,28 +16,38 @@ import java.util.Map;
 @Data
 @TableName(value = "qa_sessions", autoResultMap = true)
 public class QASession {
-    
+
     @TableId(type = IdType.AUTO)
     private Long id;
-    
+
     private Long userId;
-    
+
     private String title;
-    
+
     private Status status = Status.ACTIVE;
-    
+
     @TableField(typeHandler = JacksonTypeHandler.class)
     private Map<String, Object> context;
-    
+
     private Integer messageCount = 0;
-    
+
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime lastMessageAt;
-    
+
     private LocalDateTime updatedAt;
-    
+
     public enum Status {
-        ACTIVE, CLOSED, ARCHIVED
+        ACTIVE("active"),
+        CLOSED("closed"),
+        ARCHIVED("archived");
+
+        @com.baomidou.mybatisplus.annotation.EnumValue
+        @com.fasterxml.jackson.annotation.JsonValue
+        private final String value;
+
+        Status(String value) {
+            this.value = value;
+        }
     }
 }

@@ -12,16 +12,17 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        # Nacos console: http://localhost:8848/nacos
+        server-addr: ${NACOS_ADDR:localhost:8848}
         username: nacos
         password: nacos
-        namespace: literature-dev
+        namespace: ${NACOS_NAMESPACE:}
       config:
-        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        server-addr: ${NACOS_ADDR:localhost:8848}
         file-extension: yaml
         username: nacos
         password: nacos
-        namespace: literature-dev
+        namespace: ${NACOS_NAMESPACE:}
         enabled: false
     gateway:
       discovery:
@@ -29,29 +30,41 @@ spring:
           enabled: false
       routes:
         - id: jwks
-          uri: http://localhost:8081
+          uri: lb://user-service
           predicates:
             - Path=/.well-known/jwks.json
         - id: admin-books
-          uri: http://localhost:8083
+          uri: lb://content-service
           predicates:
             - Path=/api/admin/books/**
         - id: admin-auth
-          uri: http://localhost:8081
+          uri: lb://user-service
           predicates:
             - Path=/api/admin/auth/**
+        - id: user-auth
+          uri: lb://user-service
+          predicates:
+            - Path=/api/auth/**
         - id: user-service
-          uri: http://localhost:8081
+          uri: lb://user-service
           predicates:
             - Path=/api/user/**
           filters:
             - StripPrefix=1
+        - id: chat-admin
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/admin/chat/**
+        - id: chat-service
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/chat/**
         - id: content-service
-          uri: http://localhost:8083
+          uri: lb://content-service
           predicates:
             - Path=/api/content/**
         - id: knowledge-service
-          uri: http://localhost:8084
+          uri: lb://knowledge-service
           predicates:
             - Path=/api/knowledge/**
 

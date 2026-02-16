@@ -16,9 +16,9 @@ import java.util.List;
 @RequestMapping("/api/popular-science")
 @RequiredArgsConstructor
 public class PopularScienceController {
-    
+
     private final PopularScienceService popularScienceService;
-    
+
     /**
      * 生成文章
      */
@@ -26,17 +26,17 @@ public class PopularScienceController {
     public ResponseEntity<PopularScienceArticle> generate(@RequestBody GenerateRequest request) {
         return ResponseEntity.ok(popularScienceService.generateArticle(request.getTopic(), request.getRequirement()));
     }
-    
+
     /**
      * 获取文章详情
      */
     @GetMapping("/articles/{id}")
-    public ResponseEntity<PopularScienceArticle> getArticle(@PathVariable Long id) {
+    public ResponseEntity<PopularScienceArticle> getArticle(@PathVariable("id") Long id) {
         return popularScienceService.getArticle(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     /**
      * 获取文章列表
      */
@@ -44,19 +44,19 @@ public class PopularScienceController {
     public ResponseEntity<List<PopularScienceArticle>> listArticles() {
         return ResponseEntity.ok(popularScienceService.getAllArticles());
     }
-    
+
     /**
      * 发布文章
      */
     @PostMapping("/articles/{id}/publish")
-    public ResponseEntity<PopularScienceArticle> publish(@PathVariable Long id) {
+    public ResponseEntity<PopularScienceArticle> publish(@PathVariable("id") Long id) {
         try {
             return ResponseEntity.ok(popularScienceService.publishArticle(id));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     @Data
     public static class GenerateRequest {
         private String topic;

@@ -16,36 +16,46 @@ import java.util.List;
 @Data
 @TableName(value = "knowledge_items", autoResultMap = true)
 public class KnowledgeItem {
-    
+
     @TableId(type = IdType.AUTO)
     private Long id;
-    
+
     private Long bookId;
-    
+
     private Long chapterId;
-    
+
     private String title;
-    
+
     private String content;
-    
+
     private String sourceText;
-    
+
     private String category;
-    
+
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> tags;
-    
+
     private String embeddingId;
-    
+
     private Status status = Status.DRAFT;
-    
+
     private Long createdBy;
-    
+
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime updatedAt;
-    
+
     public enum Status {
-        DRAFT, PUBLISHED, ARCHIVED
+        DRAFT("draft"),
+        PUBLISHED("published"),
+        ARCHIVED("archived");
+
+        @com.baomidou.mybatisplus.annotation.EnumValue
+        @com.fasterxml.jackson.annotation.JsonValue
+        private final String value;
+
+        Status(String value) {
+            this.value = value;
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.literature.common.core.model.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 用户服务 Feign 客户端
@@ -23,7 +24,8 @@ public interface UserServiceClient {
      * @return 用户信息
      */
     @GetMapping("/api/internal/users/{userId}")
-    ApiResponse<UserDTO> getUserById(@PathVariable("userId") Long userId);
+    ApiResponse<UserDTO> getUserById(@PathVariable("userId") Long userId,
+                                     @RequestParam(value = "userType", required = false) String userType);
 
     /**
      * 根据用户名获取用户信息
@@ -32,5 +34,6 @@ public interface UserServiceClient {
      * @return 用户信息
      */
     @GetMapping("/api/internal/users/username/{username}")
-    ApiResponse<UserDTO> getUserByUsername(@PathVariable("username") String username);
+    ApiResponse<UserDTO> getUserByUsername(@PathVariable("username") String username,
+                                           @RequestParam(value = "userType", required = false) String userType);
 }

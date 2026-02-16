@@ -31,7 +31,8 @@ public class ConflictController {
      * 查询知识条目的冲突
      */
     @GetMapping("/item/{knowledgeItemId}")
-    public ResponseEntity<List<SourceConflict>> getByKnowledgeItem(@PathVariable Long knowledgeItemId) {
+    public ResponseEntity<List<SourceConflict>> getByKnowledgeItem(
+            @PathVariable("knowledgeItemId") Long knowledgeItemId) {
         return ResponseEntity.ok(conflictService.findConflicts(knowledgeItemId));
     }
 
@@ -40,7 +41,7 @@ public class ConflictController {
      */
     @PutMapping("/{id}/resolve")
     public ResponseEntity<SourceConflict> resolve(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody Map<String, String> body) {
         String resolution = body.get("resolution");
         SourceConflict.ResolutionType type = SourceConflict.ResolutionType.valueOf(
@@ -52,7 +53,7 @@ public class ConflictController {
      * 获取格式化后的冲突展示文本
      */
     @GetMapping("/item/{knowledgeItemId}/formatted")
-    public ResponseEntity<String> getFormatted(@PathVariable Long knowledgeItemId) {
+    public ResponseEntity<String> getFormatted(@PathVariable("knowledgeItemId") Long knowledgeItemId) {
         return ResponseEntity.ok(conflictService.formatAllConflicts(knowledgeItemId));
     }
 }

@@ -18,6 +18,9 @@ public class ChatMessage {
     @TableField("sender_id")
     private Long senderId;
 
+    @TableField("sender_type")
+    private String senderType;
+
     private String content;
 
     @TableField("content_type")
@@ -71,6 +74,14 @@ public class ChatMessage {
 
     public void setSenderId(Long senderId) {
         this.senderId = senderId;
+    }
+
+    public String getSenderType() {
+        return senderType;
+    }
+
+    public void setSenderType(String senderType) {
+        this.senderType = senderType;
     }
 
     public String getContent() {

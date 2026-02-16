@@ -17,29 +17,39 @@ import java.util.Map;
 @Data
 @TableName(value = "qa_messages", autoResultMap = true)
 public class QAMessage {
-    
+
     @TableId(type = IdType.AUTO)
     private Long id;
-    
+
     private Long sessionId;
-    
+
     private Role role;
-    
+
     private String content;
-    
+
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<Long> relatedKnowledgeIds;
-    
+
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<Map<String, Object>> sources;
-    
+
     private String modelName;
-    
+
     private Integer tokensUsed;
-    
+
     private LocalDateTime createdAt;
-    
+
     public enum Role {
-        USER, ASSISTANT, SYSTEM
+        USER("user"),
+        ASSISTANT("assistant"),
+        SYSTEM("system");
+
+        @com.baomidou.mybatisplus.annotation.EnumValue
+        @com.fasterxml.jackson.annotation.JsonValue
+        private final String value;
+
+        Role(String value) {
+            this.value = value;
+        }
     }
 }

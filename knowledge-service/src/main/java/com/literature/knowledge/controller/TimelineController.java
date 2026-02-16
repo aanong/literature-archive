@@ -39,7 +39,8 @@ public class TimelineController {
      * 按知识条目查询时间线
      */
     @GetMapping("/item/{knowledgeItemId}")
-    public ResponseEntity<List<HistoricalTimeline>> getByKnowledgeItem(@PathVariable Long knowledgeItemId) {
+    public ResponseEntity<List<HistoricalTimeline>> getByKnowledgeItem(
+            @PathVariable("knowledgeItemId") Long knowledgeItemId) {
         return ResponseEntity.ok(timelineService.getTimeline(knowledgeItemId));
     }
 
@@ -47,7 +48,7 @@ public class TimelineController {
      * 按朝代查询
      */
     @GetMapping("/dynasty/{dynasty}")
-    public ResponseEntity<List<HistoricalTimeline>> getByDynasty(@PathVariable String dynasty) {
+    public ResponseEntity<List<HistoricalTimeline>> getByDynasty(@PathVariable("dynasty") String dynasty) {
         return ResponseEntity.ok(timelineService.getTimelineByDynasty(dynasty));
     }
 
@@ -56,7 +57,7 @@ public class TimelineController {
      */
     @GetMapping("/range")
     public ResponseEntity<List<HistoricalTimeline>> getByRange(
-            @RequestParam int start, @RequestParam int end) {
+            @RequestParam("start") int start, @RequestParam("end") int end) {
         return ResponseEntity.ok(timelineService.getTimelineRange(start, end));
     }
 
@@ -64,7 +65,7 @@ public class TimelineController {
      * 校验时间线逻辑一致性
      */
     @GetMapping("/validate/{knowledgeItemId}")
-    public ResponseEntity<List<String>> validate(@PathVariable Long knowledgeItemId) {
+    public ResponseEntity<List<String>> validate(@PathVariable("knowledgeItemId") Long knowledgeItemId) {
         return ResponseEntity.ok(timelineService.validateChronology(knowledgeItemId));
     }
 

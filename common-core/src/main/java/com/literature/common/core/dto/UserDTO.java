@@ -7,12 +7,13 @@ public record UserDTO(
     Long id,
     String username,
     String nickname,
-    String status
+    String status,
+    String userType
 ) {
     /**
      * 创建默认的降级用户信息
      */
     public static UserDTO defaultUser(Long userId) {
-        return new UserDTO(userId, "unknown", "未知用户", "UNKNOWN");
+        return new UserDTO(userId, "unknown", "未知用户", "UNKNOWN", "UNKNOWN");
     }
 }

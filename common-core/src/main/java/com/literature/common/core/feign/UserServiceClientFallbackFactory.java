@@ -22,8 +22,8 @@ public class UserServiceClientFallbackFactory implements FallbackFactory<UserSer
         
         return new UserServiceClient() {
             @Override
-            public ApiResponse<UserDTO> getUserById(Long userId) {
-                log.warn("getUserById 降级处理, userId: {}", userId);
+            public ApiResponse<UserDTO> getUserById(Long userId, String userType) {
+                log.warn("getUserById 降级处理, userId: {}, userType: {}", userId, userType);
                 return ApiResponse.error(
                     ErrorCode.DOWNSTREAM_ERROR,
                     "用户服务暂时不可用",
@@ -32,8 +32,8 @@ public class UserServiceClientFallbackFactory implements FallbackFactory<UserSer
             }
 
             @Override
-            public ApiResponse<UserDTO> getUserByUsername(String username) {
-                log.warn("getUserByUsername 降级处理, username: {}", username);
+            public ApiResponse<UserDTO> getUserByUsername(String username, String userType) {
+                log.warn("getUserByUsername 降级处理, username: {}, userType: {}", username, userType);
                 return ApiResponse.error(
                     ErrorCode.DOWNSTREAM_ERROR,
                     "用户服务暂时不可用",

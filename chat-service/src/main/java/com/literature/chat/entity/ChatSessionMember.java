@@ -18,6 +18,9 @@ public class ChatSessionMember {
     @TableField("user_id")
     private Long userId;
 
+    @TableField("member_type")
+    private String memberType;
+
     private String role;
 
     private String nickname;
@@ -32,6 +35,8 @@ public class ChatSessionMember {
     public static final String ROLE_OWNER = "owner";
     public static final String ROLE_ADMIN = "admin";
     public static final String ROLE_MEMBER = "member";
+    public static final String MEMBER_TYPE_ADMIN = "ADMIN";
+    public static final String MEMBER_TYPE_C_USER = "C_USER";
 
     // Getters and Setters
     public Long getId() {
@@ -64,6 +69,14 @@ public class ChatSessionMember {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getMemberType() {
+        return memberType;
+    }
+
+    public void setMemberType(String memberType) {
+        this.memberType = memberType;
     }
 
     public String getNickname() {
