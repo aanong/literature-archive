@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import SecurityManager from './security'
+import router from '@/router'
 
 // 创建 axios 实例
 const service = axios.create({
@@ -20,12 +21,47 @@ function generateRequestId(): string {
     return `req_${Date.now()}_${++requestIdCounter}`
 }
 
+/**
+ * Token 过期/失效时的统一处理
+ * 使用防抖标志避免多个并发请求同时触发多次弹窗和跳转
+ */
+let isRedirectingToLogin = false
+function handleTokenExpired(message: string = '登录凭证已过期，请重新登录') {
+    if (isRedirectingToLogin) return
+    isRedirectingToLogin = true
+
+    // 清除本地存储的 token 和过期时间
+    localStorage.removeItem('token')
+    localStorage.removeItem('tokenExpireAt')
+
+    ElMessageBox.confirm(message, '凭证失效', {
+        confirmButtonText: '重新登录',
+        showCancelButton: false,
+        closeOnClickModal: false,
+        closeOnPressEscape: false,
+        type: 'warning',
+    }).then(() => {
+        router.replace('/login')
+    }).finally(() => {
+        // 延迟重置标志，避免跳转过程中再次触发
+        setTimeout(() => {
+            isRedirectingToLogin = false
+        }, 1000)
+    })
+}
+
 // request 拦截器
 service.interceptors.request.use(
     async config => {
         // 1. 添加认证令牌
         const token = localStorage.getItem('token')
         if (token) {
+            // 前端主动检查 token 是否已过期
+            const expireAt = localStorage.getItem('tokenExpireAt')
+            if (expireAt && Date.now() > Number(expireAt)) {
+                handleTokenExpired('登录已超时，请重新登录')
+                return Promise.reject(new Error('Token 已过期'))
+            }
             config.headers['Authorization'] = 'Bearer ' + token
         }
 
@@ -106,6 +142,11 @@ service.interceptors.response.use(
         const res = response.data
         // 后端统一返回 ApiResponse { code: "0000", message: "success", data: ... }
         if (res.code && res.code !== '0000') {
+            // 业务层面的 token 过期码 (如后端自定义的过期码)
+            if (res.code === '0401' || res.code === 'TOKEN_EXPIRED') {
+                handleTokenExpired(res.message || '登录凭证已过期')
+                return Promise.reject(new Error(res.message || 'Token expired'))
+            }
             ElMessage({
                 message: res.message || 'Error',
                 type: 'error',
@@ -117,12 +158,36 @@ service.interceptors.response.use(
         }
     },
     error => {
-        console.log('err' + error)
-        ElMessage({
-            message: error.message,
-            type: 'error',
-            duration: 5 * 1000
-        })
+        // HTTP 状态码层面的 token 过期/失效处理
+        if (error.response) {
+            const status = error.response.status
+            switch (status) {
+                case 401:
+                    // 401 Unauthorized: token 过期或无效
+                    handleTokenExpired('登录凭证已过期或无效，请重新登录')
+                    break
+                case 403:
+                    // 403 Forbidden: 无权限（并非 token 过期，但可能 token 被吊销）
+                    ElMessage({
+                        message: '您没有该操作的权限',
+                        type: 'error',
+                        duration: 5 * 1000
+                    })
+                    break
+                default:
+                    ElMessage({
+                        message: error.response.data?.message || error.message || '服务器异常',
+                        type: 'error',
+                        duration: 5 * 1000
+                    })
+            }
+        } else {
+            ElMessage({
+                message: error.message || '网络连接异常',
+                type: 'error',
+                duration: 5 * 1000
+            })
+        }
         return Promise.reject(error)
     }
 )

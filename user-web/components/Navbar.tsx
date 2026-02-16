@@ -13,7 +13,7 @@ export function Navbar() {
                 </Link>
                 <nav className="flex items-center space-x-6 text-sm font-medium">
                     <Link
-                        href="/"
+                        href="/library"
                         className="transition-colors hover:text-primary text-muted-foreground hover:font-bold"
                     >
                         藏书阁

@@ -5,14 +5,31 @@ spring:
   application:
     name: user-service
   config:
-    import: "optional:nacos:user-service.yaml"
+    import:
+      - "optional:nacos:user-service.yaml"
+      - "optional:nacos:literature-common.yaml"
   cloud:
     nacos:
       config:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
         file-extension: yaml
+        username: nacos
+        password: nacos
+        namespace: literature-dev
         shared-configs:
           - data-id: literature-common.yaml
             refresh: true
       discovery:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: literature-dev
+
+security:
+  jwt:
+    issuer: literature-auth
+    expire-minutes: 120
+    secret: literature-archive-secret-key-12345678901234567890
+    rsa:
+      public-key: classpath:keys/public.pem
+      private-key: classpath:keys/private.pem

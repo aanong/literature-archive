@@ -5,7 +5,6 @@ import com.literature.crypto.core.KeyGenerator;
 import com.literature.crypto.core.SignatureUtils;
 import com.literature.crypto.core.VaultKeyProvider;
 import com.literature.crypto.http.CryptoRequestFilter;
-import com.literature.crypto.http.CryptoResponseAdvice;
 import com.literature.crypto.http.EncryptResponseAdvice;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,22 +36,16 @@ public class CryptoAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(prefix = "literature.crypto.http", name = "enabled", havingValue = "true", matchIfMissing = true)
-  public CryptoRequestFilter cryptoRequestFilter(CryptoProperties properties, SignatureUtils signatureUtils, AesGcmCrypto aesGcmCrypto, KeyGenerator keyGenerator) {
-    return new CryptoRequestFilter(properties, signatureUtils, aesGcmCrypto, keyGenerator);
-  }
-
-  @Bean
-  @ConditionalOnProperty(prefix = "literature.crypto.http", name = "enabled", havingValue = "true", matchIfMissing = true)
-  public CryptoResponseAdvice cryptoResponseAdvice(CryptoProperties properties, AesGcmCrypto aesGcmCrypto, KeyGenerator keyGenerator,
-                                                   EncryptResponseAdvice encryptResponseAdvice) {
-    return new CryptoResponseAdvice(properties, aesGcmCrypto, keyGenerator, encryptResponseAdvice);
-  }
-
-  @Bean
+  @ConditionalOnMissingBean
   @ConditionalOnProperty(prefix = "literature.crypto.http", name = "enabled", havingValue = "true", matchIfMissing = true)
   public EncryptResponseAdvice encryptResponseAdvice() {
     return new EncryptResponseAdvice();
+  }
+
+  @Bean
+  @ConditionalOnProperty(prefix = "literature.crypto.http", name = "enabled", havingValue = "true", matchIfMissing = true)
+  public CryptoRequestFilter cryptoRequestFilter(CryptoProperties properties, SignatureUtils signatureUtils, AesGcmCrypto aesGcmCrypto, KeyGenerator keyGenerator) {
+    return new CryptoRequestFilter(properties, signatureUtils, aesGcmCrypto, keyGenerator);
   }
 
   @Bean

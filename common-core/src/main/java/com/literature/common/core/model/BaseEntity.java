@@ -3,43 +3,23 @@ package com.literature.common.core.model;
 import java.util.Date;
 
 public abstract class BaseEntity {
-    private Date createTime;
+    private Date createdAt;
 
-    private String createBy;
+    private Date updatedAt;
 
-    private Date updateTime;
-
-    private String updateBy;
-
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public String getCreateBy() {
-        return createBy;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public String getUpdateBy() {
-        return updateBy;
-    }
-
-    public void setUpdateBy(String updateBy) {
-        this.updateBy = updateBy;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

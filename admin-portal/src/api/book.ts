@@ -1,13 +1,13 @@
 import request from '@/utils/request'
 
 export interface Book {
-    id: number
+    id: string
     title: string
     author: string
-    category: string
-    description: string
-    coverUrl: string
+    edition: string
     status: string
+    createTime?: string
+    updateTime?: string
 }
 
 export interface BookListParams {
@@ -19,20 +19,43 @@ export interface BookListParams {
 
 export interface PageResponse<T> {
     total: number
-    records: T[]
+    items: T[]
 }
 
 export function listBooks(params: BookListParams) {
     return request<any, PageResponse<Book>>({
-        url: '/admin/books',
+        url: '/api/admin/books',
         method: 'get',
         params
     })
 }
 
-export function getBook(id: number) {
+export function getBook(id: string) {
     return request<any, Book>({
-        url: `/admin/books/${id}`,
+        url: `/api/admin/books/${id}`,
         method: 'get'
+    })
+}
+
+export function createBook(data: Partial<Book>) {
+    return request<any, Book>({
+        url: '/api/admin/books',
+        method: 'post',
+        data
+    })
+}
+
+export function updateBook(id: string, data: Partial<Book>) {
+    return request<any, Book>({
+        url: `/api/admin/books/${id}`,
+        method: 'put',
+        data
+    })
+}
+
+export function deleteBook(id: string) {
+    return request<any, boolean>({
+        url: `/api/admin/books/${id}`,
+        method: 'delete'
     })
 }

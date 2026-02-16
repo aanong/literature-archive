@@ -51,9 +51,16 @@
                 filterable
                 allow-create
                 default-first-option
-                placeholder="请输入标签"
+                placeholder="请选择或输入标签"
                 style="width: 100%"
-              />
+              >
+                <el-option
+                  v-for="tag in tagOptions"
+                  :key="tag"
+                  :label="tag"
+                  :value="tag"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -132,7 +139,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { listBooks, type Book } from '@/api/book'
-import { ingestBook, previewIngest, type BookIngestionResult } from '@/api/knowledge'
+import { ingestBook, previewIngest, getTags, type BookIngestionResult } from '@/api/knowledge'
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
@@ -144,8 +151,11 @@ const previewResult = ref<BookIngestionResult | null>(null)
 const loadingBooks = ref(false)
 const bookOptions = ref<Book[]>([])
 
+// 标签选项
+const tagOptions = ref<string[]>([])
+
 const form = reactive({
-  bookId: undefined as number | undefined,
+  bookId: undefined as string | undefined,
   bookTitle: '',
   category: '',
   tags: [] as string[],
@@ -167,7 +177,7 @@ const searchBooks = async (query: string) => {
     loadingBooks.value = true
     try {
       const res = await listBooks({ keyword: query, page: 1, pageSize: 20 })
-      bookOptions.value = res.records
+      bookOptions.value = res.items
     } catch (error) {
       console.error(error)
     } finally {
@@ -178,11 +188,10 @@ const searchBooks = async (query: string) => {
   }
 }
 
-const handleBookSelect = (val: number) => {
+const handleBookSelect = (val: string) => {
   const book = bookOptions.value.find(item => item.id === val)
   if (book) {
     form.bookTitle = book.title
-    form.category = book.category
   }
 }
 
@@ -226,9 +235,12 @@ const resetForm = () => {
   formRef.value.resetFields()
 }
 
-onMounted(() => {
-  // 初始化加载一些书籍
-  searchBooks('')
+onMounted(async () => {
+  try {
+    tagOptions.value = await getTags()
+  } catch (error) {
+    console.error('Failed to load tags:', error)
+  }
 })
 </script>
 

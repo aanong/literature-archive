@@ -103,4 +103,9 @@ public class KnowledgeController {
     public ResponseEntity<List<KnowledgeItem>> search(@RequestParam String keyword) {
         return ResponseEntity.ok(knowledgeService.search(keyword));
     }
+
+    @GetMapping("/tags")
+    public ResponseEntity<List<String>> getAllTags() {
+        return ResponseEntity.ok(knowledgeService.getAllTags());
+    }
 }

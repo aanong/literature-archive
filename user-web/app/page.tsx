@@ -2,7 +2,7 @@ import Link from "next/link";
 import { serverApi } from "@/lib/api";
 
 interface Book {
-  id: number;
+  id: string;
   title: string;
   author: string;
   cover?: string;
@@ -13,8 +13,7 @@ interface Book {
 // 获取书籍列表 (Server Side)
 async function getBooks(): Promise<Book[]> {
   try {
-    const res = await serverApi.get("/content/books");
-    return res.data || [];
+    return await serverApi.get("/content/books") || [];
   } catch (error) {
     console.error("Failed to fetch books:", error);
     return [];

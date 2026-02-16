@@ -40,7 +40,7 @@ services:
       - literature-network
 
   zookeeper:
-    image: bitnami/zookeeper:latest
+    image: bitnamilegacy/zookeeper:3.9.1
     container_name: zookeeper
     ports:
       - "2181:2181"
@@ -53,19 +53,15 @@ services:
       - literature-network
 
   kafka:
-    image: apache/kafka:3.7.0
+    image: bitnamilegacy/kafka:3.7.0
     container_name: kafka
     ports:
       - "9092:9092"
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=no
-      - KAFKA_CFG_ADVERTISED_LISTENERS=SASL_PLAINTEXT://localhost:9092
-      - KAFKA_CFG_LISTENERS=SASL_PLAINTEXT://:9092
-      - KAFKA_CFG_SASL_ENABLED_MECHANISMS=PLAIN
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=SASL_PLAINTEXT
-      - KAFKA_CLIENT_USERS=user
-      - KAFKA_CLIENT_PASSWORDS=${KAFKA_CLIENT_PASSWORD:-kafka123}
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
     depends_on:
       - zookeeper
     networks:
@@ -151,10 +147,7 @@ services:
     environment:
       - SEATA_IP=${SEATA_IP:-127.0.0.1}
       - SEATA_PORT=8091
-      - STORE_MODE=db
-      - SEATA_CONFIG_NAME=file:/seata-server/resources/application
-    volumes:
-      - ./seata-config:/seata-server/resources
+      - STORE_MODE=file
     depends_on:
       - mysql
       - nacos
@@ -170,4 +163,5 @@ volumes:
   redis_data:
   mongo_data:
   es_data:
+
 

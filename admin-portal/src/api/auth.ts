@@ -7,7 +7,7 @@ export interface LoginRequest {
 
 export interface TokenResponse {
     token: string
-    expireSeconds: number
+    expiresIn: number
 }
 
 // 登录接口

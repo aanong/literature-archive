@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: jwks
+          uri: lb://user-service
+          predicates:
+            - Path=/.well-known/jwks.json
+          filters:
+            - StripPrefix=0
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+        - id: content-service
+          uri: lb://content-service
+          predicates:
+            - Path=/api/content/**
+          filters:
+            - StripPrefix=1
+        - id: knowledge-service
+          uri: lb://knowledge-service
+          predicates:
+            - Path=/api/knowledge/**
+          filters:
+            - StripPrefix=1
+        - id: admin-auth
+          uri: lb://user-service
+          predicates:
+            - Path=/api/admin/auth/**
+          filters:
+            - StripPrefix=0
+        - id: admin-books
+          uri: lb://content-service
+          predicates:
+            - Path=/api/admin/books/**
+          filters:
+            - StripPrefix=0
+
+security:
+  jwt:
+    jwk-set-uri: http://user-service/.well-known/jwks.json
+
+literature:
+  crypto:
+    http:
+      enabled: false

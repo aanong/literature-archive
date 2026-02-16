@@ -30,7 +30,7 @@ export interface BookIngestionResult {
 
 export function ingestBook(data: BookIngestionRequest) {
     return request<any, BookIngestionResult>({
-        url: '/knowledge/ingest',
+        url: '/api/knowledge/ingest',
         method: 'post',
         data
     })
@@ -38,8 +38,15 @@ export function ingestBook(data: BookIngestionRequest) {
 
 export function previewIngest(data: BookIngestionRequest) {
     return request<any, BookIngestionResult>({
-        url: '/knowledge/ingest/preview',
+        url: '/api/knowledge/ingest/preview',
         method: 'post',
         data
+    })
+}
+
+export function getTags() {
+    return request<any, string[]>({
+        url: '/api/knowledge/items/tags',
+        method: 'get'
     })
 }

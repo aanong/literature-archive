@@ -1,0 +1,14 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/literature_asset?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+# MinIO / OSS 配置
+storage:
+  type: minio
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minio}
+  secret-key: ${MINIO_SECRET_KEY:minio123}
+  bucket: literature-assets

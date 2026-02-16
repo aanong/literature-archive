@@ -1,0 +1,25 @@
+server:
+  port: 8085
+
+spring:
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/literature_chat?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+  data:
+    redis:
+      database: 1
+    mongodb:
+      uri: mongodb://${MONGO_HOST:localhost}:27017/literature_chat
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://user-service/auth/jwks # 指向用户服务的 JWK 端点
+
+# Netty 配置 (对应 NettyServerInitializer / AuthHandler)
+netty:
+  port: 9090
+
+# 加密配置 (对应 CryptoProperties)
+crypto:
+  key: ${CHAT_CRYPTO_KEY:1234567890123456} # AES 128/256 key
+  salt: ${CHAT_CRYPTO_SALT:somesalt}

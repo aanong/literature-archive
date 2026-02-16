@@ -48,7 +48,7 @@ public class BookController {
     if (StringUtils.hasText(status)) {
       wrapper.eq(Book::getStatus, status);
     }
-    wrapper.orderByDesc(Book::getCreateTime);
+    wrapper.orderByDesc(Book::getCreatedAt);
 
     bookService.page(bookPage, wrapper);
     return ApiResponse.success(new PageResponse<>(bookPage.getTotal(), bookPage.getRecords()), null);

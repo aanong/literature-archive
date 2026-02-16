@@ -26,8 +26,7 @@ export function useChatSession(userId: number) {
     const loadSession = async (uid: number) => {
         try {
             // 1. Get existing sessions
-            const res = await api.get(`/knowledge/qa/sessions?userId=${uid}`);
-            const sessions = res || [];
+            const sessions = (await api.get(`/knowledge/qa/sessions?userId=${uid}`)) as ChatSession[] || [];
             if (sessions.length > 0) {
                 // Use the latest session
                 const latest = sessions[0];
@@ -35,11 +34,13 @@ export function useChatSession(userId: number) {
                 fetchMessages(latest.id);
             } else {
                 // Create new session
-                const newSession = await api.post("/knowledge/qa/sessions", {
+                const newSession = (await api.post("/knowledge/qa/sessions", {
                     userId: uid,
                     title: "Reader Assistant",
-                });
-                setSessionId(newSession.id);
+                })) as ChatSession | null;
+                if (newSession) {
+                    setSessionId(newSession.id);
+                }
             }
         } catch (e) {
             console.error("Failed to load session", e);
@@ -48,8 +49,8 @@ export function useChatSession(userId: number) {
 
     const fetchMessages = async (sid: number) => {
         try {
-            const res = await api.get(`/knowledge/qa/sessions/${sid}/messages`);
-            setMessages(res || []);
+            const msgs = (await api.get(`/knowledge/qa/sessions/${sid}/messages`)) as Message[] || [];
+            setMessages(msgs);
         } catch (e) {
             console.error("Failed to fetch messages", e);
         }

@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
-import { Reading, House, Grid, Fold, Expand, Setting, ChatLineSquare } from '@element-plus/icons-vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
+import { Reading, House, Grid, Fold, Expand, Setting, ChatLineSquare, SwitchButton } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
+import { ElMessageBox } from 'element-plus'
 
 const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
 const isCollapse = ref(false)
 
 const isLoginPage = computed(() => {
@@ -12,6 +16,24 @@ const isLoginPage = computed(() => {
 
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value
+}
+
+const handleLogout = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要退出登录吗？',
+      '退出确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    userStore.logoutAction()
+    router.push('/login')
+  } catch {
+    // cancelled
+  }
 }
 </script>
 
@@ -79,6 +101,10 @@ const toggleCollapse = () => {
             <el-avatar :size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
             <span class="username">掌书官</span>
           </div>
+          <el-button type="danger" link class="logout-btn" @click="handleLogout">
+            <el-icon><SwitchButton /></el-icon>
+            退出
+          </el-button>
         </div>
       </el-header>
       
@@ -212,6 +238,12 @@ const toggleCollapse = () => {
 .header-right {
   display: flex;
   align-items: center;
+  gap: 16px;
+}
+
+.logout-btn {
+  font-family: "Noto Serif SC", serif;
+  font-size: 14px;
 }
 
 .user-info {

@@ -27,9 +27,11 @@ interface BookDetail {
 
 async function getBook(id: string): Promise<BookDetail | null> {
     try {
-        const res = await serverApi.get(`/content/books/${id}`);
-        return res.data;
+        const book = await serverApi.get(`/content/books/${id}`) as BookDetail;
+        console.log("[getBook] Success:", id, book?.title);
+        return book;
     } catch (error) {
+        console.error("[getBook] Failed:", id, error);
         return null;
     }
 }
@@ -37,9 +39,10 @@ async function getBook(id: string): Promise<BookDetail | null> {
 export default async function BookPage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
-    const book = await getBook(params.id);
+    const { id } = await params;
+    const book = await getBook(id);
 
     if (!book) {
         notFound();
@@ -48,11 +51,11 @@ export default async function BookPage({
     return (
         <div className="container py-8 md:py-12">
             <Link
-                href="/"
+                href="/library"
                 className="mb-8 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Library
+                返回藏书阁
             </Link>
 
             <div className="grid gap-8 md:grid-cols-[300px_1fr]">
@@ -83,14 +86,14 @@ export default async function BookPage({
 
                 <div className="space-y-8">
                     <div className="prose max-w-none">
-                        <h2 className="text-xl font-semibold">Summary</h2>
+                        <h2 className="text-xl font-semibold">简介</h2>
                         <p className="text-muted-foreground leading-relaxed">
-                            {book.summary || "No summary available."}
+                            {book.summary || "暂无简介"}
                         </p>
                     </div>
 
                     <div className="space-y-4">
-                        <h2 className="text-xl font-semibold">Table of Contents</h2>
+                        <h2 className="text-xl font-semibold">目录</h2>
                         <div className="rounded-lg border">
                             {book.volumes && book.volumes.length > 0 ? (
                                 book.volumes.map((volume) => (
@@ -112,7 +115,7 @@ export default async function BookPage({
                                                     {chapter.wordCount && (
                                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                                             <Clock className="h-3 w-3" />
-                                                            <span>{Math.ceil(chapter.wordCount / 500)} min</span>
+                                                            <span>{Math.ceil(chapter.wordCount / 500)} 分钟</span>
                                                         </div>
                                                     )}
                                                 </Link>
@@ -121,7 +124,7 @@ export default async function BookPage({
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-4 text-muted-foreground">No chapters found.</div>
+                                <div className="p-4 text-muted-foreground">暂无章节</div>
                             )}
                         </div>
                     </div>

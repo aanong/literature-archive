@@ -6,6 +6,7 @@ import com.literature.crypto.core.AesGcmCrypto;
 import com.literature.crypto.core.KeyGenerator;
 import java.util.Base64;
 import javax.crypto.SecretKey;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 @ControllerAdvice
+@ConditionalOnProperty(prefix = "literature.crypto.http", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class CryptoResponseAdvice implements ResponseBodyAdvice<Object> {
   private final CryptoProperties properties;
   private final AesGcmCrypto aesGcmCrypto;
@@ -27,10 +29,6 @@ public class CryptoResponseAdvice implements ResponseBodyAdvice<Object> {
     this.aesGcmCrypto = aesGcmCrypto;
     this.keyGenerator = keyGenerator;
     this.encryptResponseAdvice = encryptResponseAdvice;
-  }
-
-  public CryptoResponseAdvice(CryptoProperties properties, AesGcmCrypto aesGcmCrypto) {
-    this(properties, aesGcmCrypto, new KeyGenerator(), new EncryptResponseAdvice());
   }
 
   @Override

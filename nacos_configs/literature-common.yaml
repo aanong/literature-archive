@@ -1,0 +1,62 @@
+spring:
+  # 数据库公共配置 (URL 由各服务自行定义)
+  datasource:
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  # Redis 公共配置
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:root}
+      database: 0 # 默认库，个别服务可覆盖
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+
+  # Nacos Discovery 公共配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:} # 读取本地 bootstrap.yml 或环境变量
+
+# JWT 公共配置 (各服务代码中使用 ${security.jwt.secret})
+security:
+  jwt:
+    secret: literature-archive-secret-key-12345678901234567890
+    issuer: literature-auth
+    expire-minutes: 120
+
+# MyBatis Plus 公共配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 日志公共配置
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 临时关闭加密，解决前后端算法/签名不一致导致的 400 错误
+literature:
+  crypto:
+    http:
+      enabled: false

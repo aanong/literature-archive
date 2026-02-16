@@ -214,4 +214,8 @@ public class KnowledgeService {
         knowledgeItemMapper.updateById(item);
         log.info("知识条目已向量化: id={}, embeddingId={}", id, embeddingId);
     }
+
+    public List<String> getAllTags() {
+        return knowledgeItemMapper.findAllDistinctTags();
+    }
 }

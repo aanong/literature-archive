@@ -9,6 +9,6 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface UserAccountMapper extends BaseMapper<UserAccount> {
 
-    @Select("SELECT * FROM users WHERE username = #{username}")
+    @Select("SELECT id, username, password_hash AS passwordHash, status, created_at AS createdAt FROM users WHERE username = #{username}")
     UserAccount findByUsername(@Param("username") String username);
 }

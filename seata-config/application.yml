@@ -6,7 +6,7 @@ spring:
     name: seata-server
 
 logging:
-  config: classpath:logback-spring.xml
+#   config: classpath:logback-spring.xml
   file:
     path: ${log.home:${user.home}/logs/seata}
 
@@ -17,7 +17,7 @@ console:
 
 seata:
   config:
-    type: nacos
+    type: file
     nacos:
       server-addr: nacos:8848
       namespace: ""
@@ -36,7 +36,7 @@ seata:
       username: nacos
       password: nacos
   store:
-    mode: db
+    mode: file
     db:
       datasource: druid
       db-type: mysql

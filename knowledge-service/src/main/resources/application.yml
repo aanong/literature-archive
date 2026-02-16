@@ -5,14 +5,22 @@ spring:
   application:
     name: knowledge-service
   config:
-    import: "optional:nacos:knowledge-service.yaml"
+    import:
+      - "optional:nacos:knowledge-service.yaml"
+      - "optional:nacos:literature-common.yaml"
   cloud:
     nacos:
       config:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
         file-extension: yaml
+        username: nacos
+        password: nacos
+        namespace: literature-dev
         shared-configs:
           - data-id: literature-common.yaml
             refresh: true
       discovery:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: literature-dev

@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/literature_user?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+security:
+  jwt:
+    issuer: literature-auth
+    expire-minutes: 120
+    secret: literature-archive-secret-key-12345678901234567890
+    rsa:
+      public-key: classpath:keys/public.pem
+      private-key: classpath:keys/private.pem

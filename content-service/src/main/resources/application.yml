@@ -5,14 +5,29 @@ spring:
   application:
     name: content-service
   config:
-    import: "optional:nacos:content-service.yml"
+    import:
+      - "optional:nacos:content-service.yaml"
+      - "optional:nacos:literature-common.yaml"
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8081/.well-known/jwks.json
   cloud:
     nacos:
       config:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
         file-extension: yaml
+        username: nacos
+        password: nacos
+        namespace: literature-dev
         shared-configs:
           - data-id: literature-common.yaml
             refresh: true
       discovery:
         server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        username: nacos
+        password: nacos
+        namespace: literature-dev
