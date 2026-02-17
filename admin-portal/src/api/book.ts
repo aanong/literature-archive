@@ -6,6 +6,8 @@ export interface Book {
     author: string
     edition: string
     status: string
+    category?: string
+    tags?: string
     createTime?: string
     updateTime?: string
 }
@@ -57,5 +59,16 @@ export function deleteBook(id: string) {
     return request<any, boolean>({
         url: `/api/admin/books/${id}`,
         method: 'delete'
+    })
+}
+
+export function importChapters(id: string, content: string) {
+    return request<any, void>({
+        url: `/api/admin/books/${id}/chapters/import`,
+        method: 'post',
+        headers: {
+            'Content-Type': 'text/plain'
+        },
+        data: content
     })
 }

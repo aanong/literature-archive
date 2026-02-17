@@ -11,11 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * 用户服务 Feign 客户端
  * 提供用户信息查询接口
  */
-@FeignClient(
-    name = "user-service",
-    url = "${user-service.url:}",
-    fallbackFactory = UserServiceClientFallbackFactory.class
-)
+@FeignClient(name = "user-service", url = "${user-service.url:}", fallbackFactory = UserServiceClientFallbackFactory.class)
 public interface UserServiceClient {
 
     /**
@@ -26,7 +22,7 @@ public interface UserServiceClient {
      */
     @GetMapping("/api/internal/users/{userId}")
     ApiResponse<UserDTO> getUserById(@PathVariable("userId") Long userId,
-                                     @RequestParam(value = "userType", required = false) String userType);
+            @RequestParam(value = "userType", required = false) String userType);
 
     /**
      * 根据用户名获取用户信息
@@ -36,5 +32,5 @@ public interface UserServiceClient {
      */
     @GetMapping("/api/internal/users/username/{username}")
     ApiResponse<UserDTO> getUserByUsername(@PathVariable("username") String username,
-                                           @RequestParam(value = "userType", required = false) String userType);
+            @RequestParam(value = "userType", required = false) String userType);
 }

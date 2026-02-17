@@ -99,4 +99,17 @@ public class BookController {
   public ApiResponse<Boolean> deleteBook(@PathVariable Long id) {
     return ApiResponse.success(bookService.removeById(id), null);
   }
+
+  /**
+   * 导入书籍章节
+   *
+   * @param id      书籍ID
+   * @param content 文本内容
+   * @return 成功状态
+   */
+  @PostMapping("/{id}/chapters/import")
+  public ApiResponse<Void> importChapters(@PathVariable Long id, @RequestBody String content) {
+    bookService.importChapters(id, content);
+    return ApiResponse.success(null, "章节导入成功");
+  }
 }

@@ -19,6 +19,10 @@ public class Book extends BaseEntity {
 
     private String status;
 
+    private String category;
+
+    private String tags;
+
     public Long getId() {
         return id;
     }
@@ -57,6 +61,22 @@ public class Book extends BaseEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     @com.baomidou.mybatisplus.annotation.TableField(exist = false)

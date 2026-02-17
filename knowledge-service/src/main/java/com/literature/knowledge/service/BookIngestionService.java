@@ -29,6 +29,8 @@ public class BookIngestionService {
     private final TextSplitter textSplitter;
     private final KnowledgeService knowledgeService;
     private final BookIngestionProperties properties;
+    private final AutoClassificationService autoClassificationService;
+    private final com.literature.common.core.feign.ContentServiceClient contentServiceClient;
 
     /**
      * 基于纯文本拆分并导入知识库
@@ -42,6 +44,33 @@ public class BookIngestionService {
 
         // 1.5 用配置默认值填充空参数
         applyDefaults(request);
+
+        // 1.8 自动分类
+        if (request.isAutoClassify() && !StringUtils.hasText(request.getCategory())) {
+            try {
+                AutoClassificationService.ClassificationResult result = autoClassificationService
+                        .classify(request.getContent());
+                request.setCategory(result.getCategory());
+                request.setTags(result.getTags());
+                log.info("AI 自动分类完成: bookId={}, category={}, tags={}", request.getBookId(), result.getCategory(),
+                        result.getTags());
+
+                // 异步更新 content-service
+                try {
+                    com.literature.common.core.dto.BookDTO bookDTO = new com.literature.common.core.dto.BookDTO(
+                            request.getBookId(),
+                            null, null, null, null,
+                            result.getCategory(),
+                            com.literature.common.core.utils.JacksonUtils.toJsonString(result.getTags()));
+                    contentServiceClient.updateBookMetadata(request.getBookId(), bookDTO);
+                } catch (Exception e) {
+                    log.error("更新书籍元数据失败", e);
+                }
+
+            } catch (Exception e) {
+                log.warn("AI 自动分类失败，将跳过分类步骤", e);
+            }
+        }
 
         // 2. 拆分文本
         List<TextChunk> chunks = splitText(request);

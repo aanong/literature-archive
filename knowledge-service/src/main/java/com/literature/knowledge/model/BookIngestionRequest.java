@@ -56,6 +56,11 @@ public class BookIngestionRequest {
     private boolean autoVectorize = false;
 
     /**
+     * 是否启用 AI 自动分类（仅当 category 和 tags 为空时生效）
+     */
+    private boolean autoClassify = false;
+
+    /**
      * 拆分策略枚举
      */
     public enum SplitStrategy {

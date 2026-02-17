@@ -12,10 +12,7 @@ import java.util.List;
  * 内容服务 Feign 客户端
  * 提供书籍元数据查询接口
  */
-@FeignClient(
-    name = "content-service",
-    fallbackFactory = ContentServiceClientFallbackFactory.class
-)
+@FeignClient(name = "content-service", fallbackFactory = ContentServiceClientFallbackFactory.class)
 public interface ContentServiceClient {
 
     /**
@@ -35,4 +32,15 @@ public interface ContentServiceClient {
      */
     @GetMapping("/api/internal/books/batch/{bookIds}")
     ApiResponse<List<BookDTO>> getBooksByIds(@PathVariable("bookIds") String bookIds);
+
+    /**
+     * 更新书籍元数据（分类、标签等）
+     *
+     * @param bookId  书籍ID
+     * @param bookDTO 书籍信息
+     * @return 更新结果
+     */
+    @org.springframework.web.bind.annotation.PutMapping("/api/internal/books/{bookId}/metadata")
+    ApiResponse<Void> updateBookMetadata(@PathVariable("bookId") Long bookId,
+            @org.springframework.web.bind.annotation.RequestBody BookDTO bookDTO);
 }

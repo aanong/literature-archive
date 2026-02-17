@@ -4,12 +4,13 @@ package com.literature.common.core.dto;
  * 书籍信息 DTO，用于服务间调用
  */
 public record BookDTO(
-    Long id,
-    String title,
-    String author,
-    String edition,
-    String status
-) {
+        Long id,
+        String title,
+        String author,
+        String edition,
+        String status,
+        String category,
+        String tags) {
     /**
      * 创建默认的降级书籍信息
      */
