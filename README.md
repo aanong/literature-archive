@@ -43,6 +43,7 @@
 1. **启动基础设施**
    ```bash
    docker-compose up -d mysql redis nacos minio
+   OLLAMA_HOST=0.0.0.0 ollama serve
    ```
 
 2. **启动后端服务**
