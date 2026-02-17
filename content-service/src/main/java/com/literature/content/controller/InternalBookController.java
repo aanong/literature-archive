@@ -94,7 +94,9 @@ public class InternalBookController {
             book.getTitle(),
             book.getAuthor(),
             book.getEdition(),
-            book.getStatus()
+            book.getStatus(),
+            book.getCategory(),
+            book.getTags()
         );
     }
 }

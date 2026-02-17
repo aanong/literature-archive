@@ -43,6 +43,16 @@ public class ContentServiceClientFallbackFactory implements FallbackFactory<Cont
                     null
                 );
             }
+
+            @Override
+            public ApiResponse<Void> updateBookMetadata(Long bookId, BookDTO bookDTO) {
+                log.warn("updateBookMetadata 降级处理, bookId: {}", bookId);
+                return ApiResponse.error(
+                    ErrorCode.DOWNSTREAM_ERROR,
+                    "内容服务暂时不可用",
+                    null
+                );
+            }
         };
     }
 }

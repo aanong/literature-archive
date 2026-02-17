@@ -15,6 +15,14 @@ public record BookDTO(
      * 创建默认的降级书籍信息
      */
     public static BookDTO defaultBook(Long bookId) {
-        return new BookDTO(bookId, "未知书籍", "未知作者", null, "UNKNOWN");
+        return new BookDTO(
+                bookId,
+                "未知书籍",
+                "未知作者",
+                null,
+                "UNKNOWN",
+                null,
+                null
+        );
     }
 }

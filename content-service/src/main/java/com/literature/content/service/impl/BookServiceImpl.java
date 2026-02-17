@@ -48,7 +48,6 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
             defaultVolume.setBookId(bookId);
             defaultVolume.setTitle("默认卷");
             defaultVolume.setOrderNo(1);
-            defaultVolume.setStatus("PUBLISHED");
             volumeService.save(defaultVolume);
             volumeId = defaultVolume.getId();
         } else {
