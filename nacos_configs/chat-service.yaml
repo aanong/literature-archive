@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: 18090
 
 spring:
   datasource:
@@ -8,18 +8,24 @@ spring:
     redis:
       database: 1
     mongodb:
-      uri: mongodb://${MONGO_HOST:localhost}:27017/literature_chat
+      uri: mongodb://${MONGO_USER:admin}:${MONGO_PASSWORD:mongo123}@${MONGO_HOST:localhost}:27017/literature_chat?authSource=admin
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://user-service/auth/jwks # 指向用户服务的 JWK 端点
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:18081/.well-known/jwks.json} # 指向用户服务的 JWK 端点
 
 # Netty 配置 (对应 NettyServerInitializer / AuthHandler)
 netty:
-  port: 9090
+  port: 18091
+  ws:
+    port: 18092
+    path: /ws
 
 # 加密配置 (对应 CryptoProperties)
 crypto:
   key: ${CHAT_CRYPTO_KEY:1234567890123456} # AES 128/256 key
   salt: ${CHAT_CRYPTO_SALT:somesalt}
+
+user-service:
+  url: ${USER_SERVICE_URL:http://localhost:18081}

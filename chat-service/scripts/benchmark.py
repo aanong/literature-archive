@@ -5,7 +5,7 @@ import struct
 import json
 
 HOST = '127.0.0.1'
-PORT = 9090
+PORT = 18091
 CLIENT_COUNT = 100
 MSG_COUNT_PER_CLIENT = 10
 

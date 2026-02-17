@@ -19,7 +19,7 @@ public class ChatMessageConsumer {
     @Autowired
     private SessionManager sessionManager;
 
-    @Value("${netty.port:9090}")
+    @Value("${netty.port:18091}")
     private int port;
 
     // Listen to the topic specific to this server instance
@@ -47,7 +47,7 @@ public class ChatMessageConsumer {
 
     private void handleSingleMessage(ChatMessageDTO message) {
         Long targetUserId = message.getTargetUserId();
-        pushToLocalUser(targetUserId, message);
+        pushToLocalUser(targetUserId, message.getTargetUserType(), message);
     }
 
     private void handleGroupMessage(ChatMessageDTO message) {
@@ -56,15 +56,16 @@ public class ChatMessageConsumer {
         // it)
         // Optimization: Cache members in Redis (Planned for Phase 5 or 6).
         // For now, query DB.
-        java.util.List<Long> memberIds = chatSessionService.getSessionMemberIds(sessionId);
-        for (Long memberId : memberIds) {
+        java.util.List<com.literature.chat.entity.ChatSessionMember> members =
+                chatSessionService.getSessionMembers(sessionId);
+        for (com.literature.chat.entity.ChatSessionMember member : members) {
             // Push to local user if online
-            pushToLocalUser(memberId, message);
+            pushToLocalUser(member.getUserId(), member.getMemberType(), message);
         }
     }
 
-    private void pushToLocalUser(Long userId, ChatMessageDTO message) {
-        Channel channel = sessionManager.getChannel(userId);
+    private void pushToLocalUser(Long userId, String userType, ChatMessageDTO message) {
+        Channel channel = sessionManager.getChannel(userId, userType);
         if (channel != null && channel.isActive()) {
             ChatPayload.Builder payloadBuilder = ChatPayload.newBuilder()
                     .setSenderId(message.getSenderId())

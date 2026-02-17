@@ -76,7 +76,7 @@ java -jar target/knowledge-service-0.1.0-SNAPSHOT.jar
 
 ```bash
 # 健康检查
-curl http://localhost:8083/actuator/health
+curl http://localhost:18084/actuator/health
 
 # 预期输出
 {"status":"UP"}
@@ -109,7 +109,7 @@ curl http://localhost:11434/api/generate -d '{
 
 ```bash
 # 检查Milvus状态
-curl http://localhost:9091/healthz
+curl http://localhost:18092/healthz
 ```
 
 ## 环境变量配置(可选)

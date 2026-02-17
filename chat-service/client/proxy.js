@@ -1,9 +1,9 @@
 const WebSocket = require('ws');
 const net = require('net');
 
-const WS_PORT = 8081;
+const WS_PORT = 18081;
 const TCP_HOST = 'localhost';
-const TCP_PORT = 9090; // Default Netty port
+const TCP_PORT = 18091; // Default Netty port
 
 const wss = new WebSocket.Server({ port: WS_PORT });
 

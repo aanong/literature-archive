@@ -8,6 +8,7 @@ import com.literature.chat.netty.protocol.CmdType;
 import com.literature.chat.netty.protocol.NettyMessage;
 import com.literature.chat.netty.session.SessionManager;
 import com.literature.chat.repository.ChatMessageMongoRepository;
+import com.literature.chat.util.UserKeyUtil;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,12 +77,12 @@ public class OfflineMessageService {
     /**
      * 推送消息到 Redis 离线队列 (仅单聊)
      */
-    public void pushToOfflineQueue(Long targetUserId, ChatMessageDTO message) {
+    public void pushToOfflineQueue(Long targetUserId, String targetUserType, ChatMessageDTO message) {
         if (message.getType() != 1) {
             return; // Group chat relies on history pull
         }
         try {
-            String key = OFFLINE_QUEUE_PREFIX + targetUserId;
+            String key = OFFLINE_QUEUE_PREFIX + UserKeyUtil.build(targetUserId, targetUserType);
             String json = objectMapper.writeValueAsString(message);
             redisTemplate.opsForList().rightPush(key, json);
             // Limit queue size (e.g., 50)
@@ -95,15 +96,15 @@ public class OfflineMessageService {
     /**
      * 拉取并推送离线消息 (用户上线时调用)
      */
-    public void pullAndPushOfflineMessages(Long userId) {
+    public void pullAndPushOfflineMessages(Long userId, String userType) {
         try {
-            String key = OFFLINE_QUEUE_PREFIX + userId;
+            String key = OFFLINE_QUEUE_PREFIX + UserKeyUtil.build(userId, userType);
             List<String> list = redisTemplate.opsForList().range(key, 0, -1);
             if (list == null || list.isEmpty()) {
                 return;
             }
 
-            Channel channel = sessionManager.getChannel(userId);
+            Channel channel = sessionManager.getChannel(userId, userType);
             if (channel == null || !channel.isActive()) {
                 return;
             }

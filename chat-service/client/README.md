@@ -11,7 +11,7 @@ Browser (WebSocket) <-> Proxy (Node.js) <-> Chat Service (TCP)
 ## Prerequisites
 
 - Node.js installed
-- The Chat Service backend running on port 9090 (TCP)
+- The Chat Service backend running on port 18091 (TCP)
 
 ## Setup
 
@@ -31,7 +31,7 @@ Browser (WebSocket) <-> Proxy (Node.js) <-> Chat Service (TCP)
     ```bash
     npm start
     ```
-    This will listen on `ws://localhost:8081` and forward to `localhost:9090`.
+    This will listen on `ws://localhost:18081` and forward to `localhost:18091`.
 
 2.  **Open the Client:**
     Open `index.html` in your browser.

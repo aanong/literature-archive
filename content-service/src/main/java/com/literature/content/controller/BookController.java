@@ -35,10 +35,10 @@ public class BookController {
 
   @GetMapping
   public ApiResponse<PageResponse<Book>> listBooks(
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) String status,
-      @RequestParam(defaultValue = "1") Integer page,
-      @RequestParam(defaultValue = "10") Integer pageSize) {
+      @RequestParam(name = "keyword", required = false) String keyword,
+      @RequestParam(name = "status", required = false) String status,
+      @RequestParam(name = "page", defaultValue = "1") Integer page,
+      @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
 
     Page<Book> bookPage = new Page<>(page, pageSize);
     LambdaQueryWrapper<Book> wrapper = new LambdaQueryWrapper<>();

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { AiChatWidget } from "@/components/AiChatWidget";
 
 export const metadata: Metadata = {
   title: "云章·经籍",
@@ -14,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body>
+      <body suppressHydrationWarning>
         <div className="relative flex min-h-screen flex-col font-serif">
           <Navbar />
           <main className="flex-1">{children}</main>
@@ -26,6 +27,7 @@ export default function RootLayout({
             </div>
           </footer>
         </div>
+        <AiChatWidget />
       </body>
     </html>
   );

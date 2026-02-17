@@ -210,6 +210,11 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         return memberIds;
     }
 
+    @Override
+    public List<ChatSessionMember> getSessionMembers(Long sessionId) {
+        return memberMapper.selectBySessionId(sessionId);
+    }
+
     /**
      * 丰富会话信息（添加统计数据）
      */

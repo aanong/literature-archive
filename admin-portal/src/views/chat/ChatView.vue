@@ -65,7 +65,6 @@ import {
   createPrivateSession,
   getMySessions,
   getSessionMessages,
-  sendSessionMessage,
   type ChatMessage,
   type ChatSession
 } from '@/api/im-chat'
@@ -78,15 +77,17 @@ const inputContent = ref('')
 const sending = ref(false)
 const messageContainerRef = ref<HTMLElement | null>(null)
 const currentUsername = ref(parseCurrentUsername())
-let pollTimer: ReturnType<typeof setInterval> | null = null
+const wsRef = ref<WebSocket | null>(null)
+const wsStatus = ref<'disconnected' | 'connecting' | 'connected'>('disconnected')
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
 onMounted(async () => {
   await loadSessions()
-  startPolling()
+  connectWebSocket()
 })
 
 onUnmounted(() => {
-  stopPolling()
+  disconnectWebSocket()
 })
 
 async function loadSessions() {
@@ -127,7 +128,30 @@ async function sendMessageAction() {
   if (!content || !currentSessionId.value || sending.value) return
   sending.value = true
   try {
-    await sendSessionMessage(currentSessionId.value, content)
+    const session = sessions.value.find((s) => s.id === currentSessionId.value)
+    const targetId = session?.peerUserId ? Number(session.peerUserId) : null
+    const targetUserType = session?.peerUserType || null
+    const ws = wsRef.value
+    if (!targetId) {
+      throw new Error('无法确定对方用户')
+    }
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      const connected = await connectWebSocket(true)
+      if (!connected) {
+        throw new Error('WebSocket 未连接')
+      }
+    }
+    ws.send(
+      JSON.stringify({
+        cmd: 'SINGLE_CHAT',
+        sessionId: Number(currentSessionId.value),
+        targetId,
+        targetUserType,
+        content,
+        contentType: 'text',
+        timestamp: Date.now()
+      })
+    )
     inputContent.value = ''
     await loadMessages(currentSessionId.value)
     await loadSessions()
@@ -136,20 +160,82 @@ async function sendMessageAction() {
   }
 }
 
-function startPolling() {
-  stopPolling()
-  pollTimer = setInterval(async () => {
-    if (!currentSessionId.value) return
-    await loadMessages(currentSessionId.value)
-    await loadSessions()
-  }, 3000)
+function connectWebSocket(waitForOpen = false): Promise<boolean> | void {
+  if (wsStatus.value === 'connected' || wsStatus.value === 'connecting') {
+    return waitForOpen ? Promise.resolve(wsStatus.value === 'connected') : undefined
+  }
+  const token = localStorage.getItem('token') || ''
+  if (!token) {
+    console.warn('[chat] token missing, skip websocket connect')
+    return
+  }
+  const wsUrl =
+    import.meta.env.VITE_CHAT_WS_URL ||
+    `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.hostname}:18092/ws`
+  const ws = new WebSocket(wsUrl)
+  wsRef.value = ws
+  wsStatus.value = 'connecting'
+
+  ws.onopen = () => {
+    console.info('[chat] websocket connected:', wsUrl)
+    ws.send(JSON.stringify({ cmd: 'AUTH', token }))
+    wsStatus.value = 'connected'
+  }
+
+  ws.onmessage = () => {
+    loadSessions()
+    if (currentSessionId.value) {
+      loadMessages(currentSessionId.value)
+    }
+  }
+
+  ws.onerror = () => {
+    console.warn('[chat] websocket error:', wsUrl)
+    wsStatus.value = 'disconnected'
+  }
+
+  ws.onclose = () => {
+    console.warn('[chat] websocket closed:', wsUrl)
+    wsRef.value = null
+    wsStatus.value = 'disconnected'
+    scheduleReconnect()
+  }
+
+  if (!waitForOpen) return
+  return new Promise((resolve) => {
+    const start = Date.now()
+    const timer = setInterval(() => {
+      if (wsStatus.value === 'connected') {
+        clearInterval(timer)
+        resolve(true)
+        return
+      }
+      if (Date.now() - start > 2000) {
+        clearInterval(timer)
+        resolve(false)
+      }
+    }, 50)
+  })
 }
 
-function stopPolling() {
-  if (pollTimer) {
-    clearInterval(pollTimer)
-    pollTimer = null
+function disconnectWebSocket() {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
   }
+  if (wsRef.value) {
+    wsRef.value.close()
+    wsRef.value = null
+  }
+  wsStatus.value = 'disconnected'
+}
+
+function scheduleReconnect() {
+  if (reconnectTimer) return
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null
+    connectWebSocket()
+  }, 1000)
 }
 
 function scrollToBottom() {

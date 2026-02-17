@@ -1,5 +1,6 @@
 package com.literature.chat.netty;
 
+import com.literature.chat.netty.ws.WebSocketServerInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -16,53 +17,43 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * Netty 服务启动类
- */
 @Slf4j
 @Component
-public class NettyServer {
+public class WebSocketNettyServer {
 
     private final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-
-    // 业务线程池，用于处理耗时业务逻辑
     private final EventExecutorGroup businessGroup = new DefaultEventExecutorGroup(16);
 
-    @Value("${netty.port:18091}")
+    @Value("${netty.ws.port:18092}")
     private int port;
 
     @Autowired
-    private NettyServerInitializer nettyServerInitializer;
+    private WebSocketServerInitializer webSocketServerInitializer;
 
     @PostConstruct
     public void start() {
         new Thread(() -> {
             try {
-                // 启用 Netty 内存泄漏检测（开发/测试：PARANOID，生产环境建议改为 SIMPLE）
-                io.netty.util.ResourceLeakDetector.setLevel(
-                        io.netty.util.ResourceLeakDetector.Level.PARANOID);
-
-                // 注入业务线程池
-                nettyServerInitializer.setBusinessGroup(businessGroup);
+                webSocketServerInitializer.setBusinessGroup(businessGroup);
 
                 ServerBootstrap bootstrap = new ServerBootstrap()
                         .group(bossGroup, workerGroup)
                         .channel(NioServerSocketChannel.class)
-                        .option(ChannelOption.SO_BACKLOG, 10240) // Increased backlog for high burst
+                        .option(ChannelOption.SO_BACKLOG, 10240)
                         .option(ChannelOption.SO_REUSEADDR, true)
                         .childOption(ChannelOption.SO_KEEPALIVE, true)
                         .childOption(ChannelOption.TCP_NODELAY, true)
                         .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                         .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK,
-                                new io.netty.channel.WriteBufferWaterMark(32 * 1024, 64 * 1024)) // Prevent OOM
-                        .childHandler(nettyServerInitializer);
+                                new io.netty.channel.WriteBufferWaterMark(32 * 1024, 64 * 1024))
+                        .childHandler(webSocketServerInitializer);
 
                 ChannelFuture future = bootstrap.bind(port).sync();
-                log.info("Netty server started on port {}", port);
+                log.info("WebSocket Netty server started on port {} (path=/ws)", port);
                 future.channel().closeFuture().sync();
             } catch (InterruptedException e) {
-                log.error("Netty server interrupted", e);
+                log.error("WebSocket Netty server interrupted", e);
                 Thread.currentThread().interrupt();
             } finally {
                 stop();
@@ -72,14 +63,10 @@ public class NettyServer {
 
     @PreDestroy
     public void stop() {
-        log.info("Stopping Netty server...");
+        log.info("Stopping WebSocket Netty server...");
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
         businessGroup.shutdownGracefully();
-        log.info("Netty server stopped");
-    }
-
-    public EventExecutorGroup getBusinessGroup() {
-        return businessGroup;
+        log.info("WebSocket Netty server stopped");
     }
 }

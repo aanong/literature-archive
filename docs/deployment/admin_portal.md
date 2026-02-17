@@ -55,7 +55,7 @@ server {
 
     # 代理 API 请求到后端网关
     location /api/ {
-        proxy_pass http://literature-api-gateway:8080/;
+        proxy_pass http://literature-api-gateway:18080/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

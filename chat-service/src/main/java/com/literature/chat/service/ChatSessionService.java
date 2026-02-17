@@ -103,4 +103,6 @@ public interface ChatSessionService {
      * @return 成员ID列表
      */
     java.util.List<Long> getSessionMemberIds(Long sessionId);
+
+    java.util.List<com.literature.chat.entity.ChatSessionMember> getSessionMembers(Long sessionId);
 }

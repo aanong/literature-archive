@@ -18,6 +18,9 @@ public class SessionVO {
     private Long memberCount;
     private Long messageCount;
     private MessageVO lastMessage;
+    private String peerUserId;
+    private String peerUserType;
+    private String peerUsername;
 
     /**
      * 从实体转换
@@ -113,5 +116,29 @@ public class SessionVO {
 
     public void setLastMessage(MessageVO lastMessage) {
         this.lastMessage = lastMessage;
+    }
+
+    public String getPeerUserId() {
+        return peerUserId;
+    }
+
+    public void setPeerUserId(String peerUserId) {
+        this.peerUserId = peerUserId;
+    }
+
+    public String getPeerUserType() {
+        return peerUserType;
+    }
+
+    public void setPeerUserType(String peerUserType) {
+        this.peerUserType = peerUserType;
+    }
+
+    public String getPeerUsername() {
+        return peerUsername;
+    }
+
+    public void setPeerUsername(String peerUsername) {
+        this.peerUsername = peerUsername;
     }
 }

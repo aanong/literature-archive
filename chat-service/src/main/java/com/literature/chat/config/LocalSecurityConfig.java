@@ -2,6 +2,7 @@ package com.literature.chat.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
@@ -12,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 为了解决启动时找不到 JwtDecoder 的问题
  */
 @Configuration
+@ConditionalOnProperty(name = "security.jwt.local-dev", havingValue = "true")
 public class LocalSecurityConfig {
 
     @Bean

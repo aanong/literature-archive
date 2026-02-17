@@ -9,6 +9,8 @@ import com.alibaba.csp.sentinel.slots.system.SystemBlockException;
 import com.literature.common.core.model.ApiResponse;
 import com.literature.common.core.model.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,16 +19,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ApiResponse<Void> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    log.warn("Validation error: path={}, traceId={}", request.getRequestURI(), request.getHeader("X-Trace-Id"), ex);
     return ApiResponse.error(ErrorCode.INVALID_PARAM, ex.getMessage(), request.getHeader("X-Trace-Id"));
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ApiResponse<Void> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+    log.warn("Illegal argument: path={}, traceId={}", request.getRequestURI(), request.getHeader("X-Trace-Id"), ex);
     return ApiResponse.error(ErrorCode.INVALID_PARAM, ex.getMessage(), request.getHeader("X-Trace-Id"));
   }
 
@@ -36,6 +41,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(BlockException.class)
   @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
   public ApiResponse<Void> handleBlockException(BlockException ex, HttpServletRequest request) {
+    log.warn("Blocked by Sentinel: path={}, traceId={}", request.getRequestURI(), request.getHeader("X-Trace-Id"), ex);
     String message = getBlockExceptionMessage(ex);
     return ApiResponse.error(ErrorCode.TOO_MANY_REQUESTS, message, request.getHeader("X-Trace-Id"));
   }
@@ -61,6 +67,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResponse<Void> handleGeneric(Exception ex, HttpServletRequest request) {
+    log.error("Unhandled exception: path={}, traceId={}", request.getRequestURI(), request.getHeader("X-Trace-Id"), ex);
     return ApiResponse.error(ErrorCode.INTERNAL_ERROR, ex.getMessage(), request.getHeader("X-Trace-Id"));
   }
 }

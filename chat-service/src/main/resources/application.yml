@@ -1,9 +1,23 @@
 server:
-  port: 8088
+  port: 18090
+
+netty:
+  port: 18091
+  ws:
+    port: 18092
+    path: /ws
 
 spring:
   application:
     name: chat-service
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USER:admin}:${MONGO_PASSWORD:mongo123}@${MONGO_HOST:localhost}:27017/literature_chat?authSource=admin
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:18081/.well-known/jwks.json}
   config:
     import:
       - "optional:nacos:chat-service.yaml"
@@ -24,3 +38,6 @@ spring:
         username: nacos
         password: nacos
         namespace: ${NACOS_NAMESPACE:}
+
+user-service:
+  url: ${USER_SERVICE_URL:http://localhost:18081}

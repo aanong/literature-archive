@@ -71,7 +71,7 @@ logging:
 
 ```yaml
 server:
-  port: 8081
+  port: 18081
 
 spring:
   datasource:
@@ -89,7 +89,7 @@ security:
 
 ```yaml
 server:
-  port: 8083
+  port: 18083
 
 spring:
   datasource:
@@ -104,7 +104,7 @@ mybatis-plus:
 
 ```yaml
 server:
-  port: 8084
+  port: 18084
 
 spring:
   datasource:
@@ -142,7 +142,7 @@ ai-model:
 
 ```yaml
 server:
-  port: 8088
+  port: 18090
 
 spring:
   datasource:
@@ -155,7 +155,7 @@ spring:
 
 # Netty 配置 (对应 NettyServerInitializer / AuthHandler)
 netty:
-  port: 9090
+  port: 18091
 
 # 加密配置 (对应 CryptoProperties)
 crypto:
@@ -168,14 +168,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://user-service/auth/jwks # 指向用户服务的 JWK 端点
+          jwk-set-uri: http://user-service/.well-known/jwks.json # 指向用户服务的 JWK 端点
 ```
 
 ### 3.5 资源服务 (`asset-service.yaml`)
 
 ```yaml
 server:
-  port: 8082
+  port: 18082
 
 spring:
   datasource:
@@ -194,7 +194,7 @@ storage:
 
 ```yaml
 server:
-  port: 8080
+  port: 18080
 
 spring:
   cloud:

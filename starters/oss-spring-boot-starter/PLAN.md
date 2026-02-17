@@ -183,7 +183,7 @@ literature:
     # 本地存储配置
     local:
       root-path: /data/uploads
-      url-prefix: http://localhost:8080/files
+      url-prefix: http://localhost:18080/files
     
     # MinIO 配置
     minio:

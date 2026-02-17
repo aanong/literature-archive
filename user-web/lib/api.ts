@@ -13,7 +13,7 @@ export const api = axios.create({
 // 为简单起见，如果是在 Server Component 中，建议使用 fetch 或专门的 serverApi
 // 这里配置一个 serverApi 指向 Gateway
 export const serverApi = axios.create({
-    baseURL: process.env.GATEWAY_URL || "http://localhost:8080/api",
+    baseURL: process.env.GATEWAY_URL || "http://localhost:18080/api",
     timeout: 60000,
 });
 
@@ -32,11 +32,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => {
         const res = response.data;
-        if (res.code && res.code !== "0000") {
-            console.error("API Error:", res.message);
-            return Promise.reject(new Error(res.message || "Error"));
+        if (res && typeof res === "object" && "code" in res) {
+            if (res.code !== "0000") {
+                console.error("API Error:", res.message);
+                return Promise.reject(new Error(res.message || "Error"));
+            }
+            return res.data;
         }
-        return res.data;
+        // 兼容未包装的响应体
+        return res;
     },
     (error) => {
         if (error?.response?.status === 401 && typeof window !== "undefined") {
@@ -52,11 +56,14 @@ api.interceptors.response.use(
 serverApi.interceptors.response.use(
     (response) => {
         const res = response.data;
-        if (res.code && res.code !== "0000") {
-            console.error("Server API Error:", res.message);
-            return Promise.reject(new Error(res.message || "Error"));
+        if (res && typeof res === "object" && "code" in res) {
+            if (res.code !== "0000") {
+                console.error("Server API Error:", res.message);
+                return Promise.reject(new Error(res.message || "Error"));
+            }
+            return res.data;
         }
-        return res.data;
+        return res;
     },
     (error) => {
         console.error("Server Network Error:", error);

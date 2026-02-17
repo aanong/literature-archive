@@ -4,6 +4,7 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import { Reading, House, Grid, Fold, Expand, Setting, ChatLineSquare, SwitchButton } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { ElMessageBox } from 'element-plus'
+import AiChatWidget from '@/components/AiChatWidget.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -12,6 +13,10 @@ const isCollapse = ref(false)
 
 const isLoginPage = computed(() => {
   return route.path === '/login' || route.name === 'login'
+})
+
+const isLoggedIn = computed(() => {
+  return !isLoginPage.value && userStore.isTokenValid()
 })
 
 const toggleCollapse = () => {
@@ -115,6 +120,7 @@ const handleLogout = async () => {
           </transition>
         </RouterView>
       </el-main>
+      <AiChatWidget v-if="isLoggedIn" />
     </el-container>
   </el-container>
 </template>

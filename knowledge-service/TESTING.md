@@ -28,27 +28,27 @@ docker-compose up -d mysql redis milvus ollama nacos
 1. 启动应用: `mvn spring-boot:run`
 2. 创建知识:
    ```bash
-   curl -X POST http://localhost:8083/api/knowledge/items \
+curl -X POST http://localhost:18084/api/knowledge/items \
      -H "Content-Type: application/json" \
      -d '{"title":"测试知识","content":"这是测试内容"}'
    ```
 3. 触发向量化:
    ```bash
    # ID为上一步返回的ID
-   curl -X POST http://localhost:8083/api/knowledge/items/1/vectorize
+curl -X POST http://localhost:18084/api/knowledge/items/1/vectorize
    ```
 4. 验证: 查看日志是否输出 `知识条目已向量化`，并在 Milvus 中是否存在数据。
 
 #### B. 智能问答测试
 1. 创建会话:
    ```bash
-   curl -X POST http://localhost:8083/api/qa/sessions \
+curl -X POST http://localhost:18084/api/qa/sessions \
      -H "Content-Type: application/json" \
      -d '{"userId":1}'
    ```
 2. 提问:
    ```bash
-   curl -X POST http://localhost:8083/api/qa/sessions/1/ask \
+curl -X POST http://localhost:18084/api/qa/sessions/1/ask \
      -H "Content-Type: application/json" \
      -d '{"question":"测试内容是什么?"}'
    ```

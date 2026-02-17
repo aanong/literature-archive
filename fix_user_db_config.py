@@ -6,7 +6,7 @@ GROUP = "DEFAULT_GROUP"
 DATA_ID = "user-service.yaml"
 
 CONTENT = """server:
-  port: 8081
+  port: 18081
 
 spring:
   application:

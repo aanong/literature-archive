@@ -164,4 +164,3 @@ volumes:
   mongo_data:
   es_data:
 
-

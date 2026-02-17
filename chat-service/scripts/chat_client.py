@@ -764,7 +764,7 @@ def main():
     )
     
     parser.add_argument('--host', default='127.0.0.1', help='服务器地址 (默认: 127.0.0.1)')
-    parser.add_argument('--port', type=int, default=9090, help='服务器端口 (默认: 9090)')
+    parser.add_argument('--port', type=int, default=18091, help='服务器端口 (默认: 18091)')
     parser.add_argument('--clients', type=int, default=100, help='客户端数量 (默认: 100)')
     parser.add_argument('--messages', type=int, default=10, help='每客户端消息数 (默认: 10)')
     parser.add_argument('--groups', type=int, default=5, help='群组数量 (默认: 5)')

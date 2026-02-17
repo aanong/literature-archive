@@ -30,9 +30,10 @@ public class SessionCleanupHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Long userId = sessionManager.removeSession(ctx.channel());
+        String userType = sessionManager.getUserType(ctx.channel());
         if (userId != null) {
-            sessionRouteService.removeUserRoute(userId);
-            log.info("用户 {} 断开连接，已清理会话和路由", userId);
+            sessionRouteService.removeUserRoute(userId, userType);
+            log.info("用户 {}:{} 断开连接，已清理会话和路由", userType, userId);
         }
         super.channelInactive(ctx);
     }

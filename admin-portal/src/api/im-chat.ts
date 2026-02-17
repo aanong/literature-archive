@@ -13,6 +13,9 @@ export interface ChatSession {
   id: string
   title: string
   updatedAt: string
+  peerUserId?: string
+  peerUserType?: string
+  peerUsername?: string
   messageCount?: number
   lastMessage?: ChatMessage
 }

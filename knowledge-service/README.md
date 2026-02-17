@@ -59,7 +59,7 @@ mvn spring-boot:run
 
 ```bash
 # 1. 创建知识条目
-curl -X POST http://localhost:8083/api/knowledge/items \
+curl -X POST http://localhost:18084/api/knowledge/items \
   -H "Content-Type: application/json" \
   -d '{
     "title": "道德经第一章",
@@ -71,19 +71,19 @@ curl -X POST http://localhost:8083/api/knowledge/items \
 # 假设返回ID为1
 
 # 2. 向量化知识 (关键步骤!)
-curl -X POST http://localhost:8083/api/knowledge/items/1/vectorize
+curl -X POST http://localhost:18084/api/knowledge/items/1/vectorize
 ```
 
 ### 2. 智能问答
 
 ```bash
 # 1. 创建会话
-curl -X POST http://localhost:8083/api/qa/sessions \
+curl -X POST http://localhost:18084/api/qa/sessions \
   -H "Content-Type: application/json" \
   -d '{"userId": 1, "title": "问答测试"}'
 
 # 2. 提问 (会自动检索知识库)
-curl -X POST http://localhost:8083/api/qa/sessions/1/ask \
+curl -X POST http://localhost:18084/api/qa/sessions/1/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "道德经里怎么解释道?"}'
 ```
@@ -91,7 +91,7 @@ curl -X POST http://localhost:8083/api/qa/sessions/1/ask \
 ### 3. 生成科普文章
 
 ```bash
-curl -X POST http://localhost:8083/api/popular-science/generate \
+curl -X POST http://localhost:18084/api/popular-science/generate \
   -H "Content-Type: application/json" \
   -d '{
     "topic": "老子的哲学思想对现代生活的影响",

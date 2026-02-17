@@ -18,6 +18,7 @@ public class AuthServerConfig {
             .requestMatchers("/api/admin/auth/**").permitAll()
             .requestMatchers("/api/auth/login").permitAll()
             .requestMatchers("/api/auth/register").permitAll()
+            .requestMatchers("/api/internal/**").permitAll()
             .requestMatchers("/.well-known/jwks.json").permitAll()
             .anyRequest().authenticated())
         .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))

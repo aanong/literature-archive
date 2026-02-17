@@ -1,9 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { getCurrentUser, isLoggedIn } from "@/lib/auth";
+import { getCurrentUser, getToken, isLoggedIn } from "@/lib/auth";
 
 interface ChatMessage {
     id: string;
@@ -18,6 +18,9 @@ interface ChatSession {
     id: string;
     title: string;
     updatedAt: string;
+    peerUserId?: string;
+    peerUserType?: string;
+    peerUsername?: string;
     lastMessage?: ChatMessage;
 }
 
@@ -30,6 +33,10 @@ export default function ChatPage() {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const currentSessionIdRef = useRef<string>("");
+    const wsRef = useRef<WebSocket | null>(null);
+    const wsStatusRef = useRef<"disconnected" | "connecting" | "connected">("disconnected");
+    const reconnectTimerRef = useRef<number | null>(null);
 
     const currentUser = useMemo(() => getCurrentUser(), []);
 
@@ -42,12 +49,15 @@ export default function ChatPage() {
     }, [router]);
 
     useEffect(() => {
-        if (!currentSessionId) return;
-        const timer = setInterval(() => {
-            loadMessages(currentSessionId);
-        }, 3000);
-        return () => clearInterval(timer);
+        currentSessionIdRef.current = currentSessionId;
     }, [currentSessionId]);
+
+    useEffect(() => {
+        connectWebSocket();
+        return () => {
+            disconnectWebSocket();
+        };
+    }, []);
 
     async function loadSessions() {
         try {
@@ -94,9 +104,30 @@ export default function ChatPage() {
         setLoading(true);
         setError("");
         try {
-            await api.post(`/chat/sessions/${currentSessionId}/messages`, {
-                content: input.trim(),
-            });
+            const session = sessions.find((s) => s.id === currentSessionId);
+            const targetId = session?.peerUserId ? Number(session.peerUserId) : null;
+            const targetUserType = session?.peerUserType || null;
+            if (!targetId) {
+                throw new Error("无法确定对方用户");
+            }
+            const ws = wsRef.current;
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                const connected = await connectWebSocket(true);
+                if (!connected) {
+                    throw new Error("WebSocket 未连接");
+                }
+            }
+            ws.send(
+                JSON.stringify({
+                    cmd: "SINGLE_CHAT",
+                    sessionId: Number(currentSessionId),
+                    targetId,
+                    targetUserType,
+                    content: input.trim(),
+                    contentType: "text",
+                    timestamp: Date.now(),
+                })
+            );
             setInput("");
             await loadMessages(currentSessionId);
             await loadSessions();
@@ -105,6 +136,78 @@ export default function ChatPage() {
         } finally {
             setLoading(false);
         }
+    }
+
+    function connectWebSocket(waitForOpen = false): Promise<boolean> | void {
+        if (wsStatusRef.current === "connected" || wsStatusRef.current === "connecting") {
+            return waitForOpen ? Promise.resolve(wsStatusRef.current === "connected") : undefined;
+        }
+        const token = getToken();
+        if (!token) return;
+        const wsUrl =
+            process.env.NEXT_PUBLIC_CHAT_WS_URL ||
+            `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.hostname}:18092/ws`;
+        const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+        wsStatusRef.current = "connecting";
+
+        ws.onopen = () => {
+            ws.send(JSON.stringify({ cmd: "AUTH", token }));
+            wsStatusRef.current = "connected";
+        };
+
+        ws.onmessage = () => {
+            loadSessions();
+            if (currentSessionIdRef.current) {
+                loadMessages(currentSessionIdRef.current);
+            }
+        };
+
+        ws.onerror = () => {
+            wsStatusRef.current = "disconnected";
+        };
+
+        ws.onclose = () => {
+            wsRef.current = null;
+            wsStatusRef.current = "disconnected";
+            scheduleReconnect();
+        };
+
+        if (!waitForOpen) return;
+        return new Promise((resolve) => {
+            const start = Date.now();
+            const timer = window.setInterval(() => {
+                if (wsStatusRef.current === "connected") {
+                    window.clearInterval(timer);
+                    resolve(true);
+                    return;
+                }
+                if (Date.now() - start > 2000) {
+                    window.clearInterval(timer);
+                    resolve(false);
+                }
+            }, 50);
+        });
+    }
+
+    function disconnectWebSocket() {
+        if (reconnectTimerRef.current) {
+            window.clearTimeout(reconnectTimerRef.current);
+            reconnectTimerRef.current = null;
+        }
+        if (wsRef.current) {
+            wsRef.current.close();
+            wsRef.current = null;
+        }
+        wsStatusRef.current = "disconnected";
+    }
+
+    function scheduleReconnect() {
+        if (reconnectTimerRef.current) return;
+        reconnectTimerRef.current = window.setTimeout(() => {
+            reconnectTimerRef.current = null;
+            connectWebSocket();
+        }, 1000);
     }
 
     return (

@@ -52,38 +52,38 @@ mvn clean package -DskipTests
 
 建议按依赖顺序启动服务：
 
-1.  **api-gateway**: 网关服务 (Port: 8080)
+1.  **api-gateway**: 网关服务 (Port: 18080)
     ```bash
     java -jar api-gateway/target/api-gateway-*.jar
     ```
 
-2.  **user-service**: 用户认证服务 (Port: 8081)
+2.  **user-service**: 用户认证服务 (Port: 18081)
     ```bash
     java -jar user-service/target/user-service-*.jar
     ```
 
-3.  **content-service**: 书目内容服务 (Port: 8083)
+3.  **content-service**: 书目内容服务 (Port: 18083)
     ```bash
     java -jar content-service/target/content-service-*.jar
     ```
 
-4.  **knowledge-service**: 知识图谱服务 (Port: 8084)
+4.  **knowledge-service**: 知识图谱服务 (Port: 18084)
     *   **依赖**: 需确保 Milvus 服务正常运行。
     ```bash
     java -jar knowledge-service/target/knowledge-service-*.jar
     ```
 
-5.  **chat-service**: 实时通讯服务 (Port: 8088 / Netty: 9090)
+5.  **chat-service**: 实时通讯服务 (Port: 18090 / Netty: 18091 / WS: 18092)
     ```bash
     java -jar chat-service/target/chat-service-*.jar
     ```
 
 ### 5. 验证服务
 
-- 访问网关 Swagger 文档 (需自行集成 Knife4j): `http://localhost:8080/doc.html`
+- 访问网关 Swagger 文档 (需自行集成 Knife4j): `http://localhost:18080/doc.html`
 - 或直接 curl 测试 API:
   ```bash
-  curl http://localhost:8080/api/user/health
+  curl http://localhost:18080/api/user/health
   ```
 
 ---

@@ -75,7 +75,7 @@ public class ChatUserController {
         peerUser.id(),
         peerUser.userType());
     if (existing != null) {
-      return ApiResponse.success(toSessionVO(existing), request.getHeader("X-Trace-Id"));
+      return ApiResponse.success(toSessionVO(existing, currentUser), request.getHeader("X-Trace-Id"));
     }
 
     ChatSession session = new ChatSession();
@@ -102,7 +102,7 @@ public class ChatUserController {
     memberMapper.insert(peerMember);
 
     ChatSession saved = sessionMapper.selectById(session.getId());
-    return ApiResponse.success(toSessionVO(saved), request.getHeader("X-Trace-Id"));
+    return ApiResponse.success(toSessionVO(saved, currentUser), request.getHeader("X-Trace-Id"));
   }
 
   @GetMapping("/sessions/mine")
@@ -115,7 +115,9 @@ public class ChatUserController {
     IPage<ChatSession> result = sessionMapper.selectByMemberUserId(page, currentUser.userId(),
         currentUser.userType(), ChatSession.STATUS_ACTIVE);
 
-    List<SessionVO> sessions = result.getRecords().stream().map(this::toSessionVO).toList();
+    List<SessionVO> sessions = result.getRecords().stream()
+        .map(session -> toSessionVO(session, currentUser))
+        .toList();
     return ApiResponse.success(sessions, request.getHeader("X-Trace-Id"));
   }
 
@@ -193,6 +195,10 @@ public class ChatUserController {
   }
 
   private SessionVO toSessionVO(ChatSession session) {
+    return SessionVO.fromEntity(session);
+  }
+
+  private SessionVO toSessionVO(ChatSession session, UserIdentity currentUser) {
     SessionVO vo = SessionVO.fromEntity(session);
 
     Long memberCount = memberMapper.countBySessionId(session.getId());
@@ -210,6 +216,23 @@ public class ChatUserController {
           Long.valueOf(lastMessage.getSenderId()),
           senderType));
       vo.setLastMessage(lastMessage);
+    }
+
+    if (ChatSession.TYPE_PRIVATE.equalsIgnoreCase(session.getType()) && currentUser != null) {
+      List<ChatSessionMember> members = memberMapper.selectBySessionId(session.getId());
+      for (ChatSessionMember member : members) {
+        if (!currentUser.userId().equals(member.getUserId())
+            || !currentUser.userType().equalsIgnoreCase(member.getMemberType())) {
+          vo.setPeerUserId(String.valueOf(member.getUserId()));
+          vo.setPeerUserType(member.getMemberType());
+          String nickname = member.getNickname();
+          if (nickname == null || nickname.isBlank()) {
+            nickname = resolveUsernameByIdentity(member.getUserId(), member.getMemberType());
+          }
+          vo.setPeerUsername(nickname);
+          break;
+        }
+      }
     }
 
     return vo;

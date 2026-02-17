@@ -21,6 +21,7 @@ public class SecurityConfig {
             .pathMatchers("/api/auth/login").permitAll()
             .pathMatchers("/api/auth/register").permitAll()
             .pathMatchers("/api/content/**").permitAll()
+            .pathMatchers("/api/internal/**").permitAll()
             .pathMatchers("/gateway/security/**").permitAll()
             .pathMatchers("/.well-known/jwks.json").permitAll()
             .anyExchange().authenticated())

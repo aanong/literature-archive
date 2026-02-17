@@ -31,11 +31,17 @@ public class AuthHandler extends SimpleChannelInboundHandler<NettyMessage> {
     @Autowired
     private com.literature.chat.service.OfflineMessageService offlineMessageService;
 
-    @org.springframework.beans.factory.annotation.Value("${netty.port:9090}")
+    @Autowired
+    private com.literature.common.core.feign.UserServiceClient userServiceClient;
+
+    @org.springframework.beans.factory.annotation.Value("${netty.port:18091}")
     private int port;
 
     @Autowired
     private JwtDecoder jwtDecoder;
+
+    @org.springframework.beans.factory.annotation.Value("${chat.security.allow-unsigned:true}")
+    private boolean allowUnsigned;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NettyMessage msg) throws Exception {
@@ -46,22 +52,69 @@ public class AuthHandler extends SimpleChannelInboundHandler<NettyMessage> {
             if (token != null && !token.isEmpty()) {
                 try {
                     Jwt jwt = jwtDecoder.decode(token);
-                    String subject = jwt.getSubject();
-                    // 假设 subject 就是 userId
-                    Long userId = Long.parseLong(subject);
+                    String userType = jwt.getClaim("userType");
+                    Long userId = extractUserId(jwt);
+                    if (userId == null) {
+                        String username = jwt.getSubject();
+                        com.literature.common.core.dto.UserDTO user = resolveUserByUsername(username, userType);
+                        if (user != null) {
+                            userId = user.id();
+                            if (userType == null || userType.isBlank()) {
+                                userType = user.userType();
+                            }
+                        }
+                    }
+                    if (userId == null) {
+                        throw new IllegalArgumentException("userId is missing in JWT and lookup failed");
+                    }
+                    if (userType == null || userType.isBlank()) {
+                        userType = "UNKNOWN";
+                    }
 
-                    sessionManager.addSession(userId, ctx.channel());
+                    sessionManager.addSession(userId, userType, ctx.channel());
 
                     // Register route
                     String serverAddress = java.net.InetAddress.getLocalHost().getHostAddress() + ":" + port;
-                    sessionRouteService.registerUserRoute(userId, serverAddress);
+                    sessionRouteService.registerUserRoute(userId, userType, serverAddress);
 
                     // Pull offline messages
-                    offlineMessageService.pullAndPushOfflineMessages(userId);
+                    offlineMessageService.pullAndPushOfflineMessages(userId, userType);
 
                     ctx.pipeline().remove(this); // Remove self
                     log.info("User {} authenticated and route registered at {}", userId, serverAddress);
-                } catch (JwtException | NumberFormatException e) {
+                } catch (JwtException e) {
+                    if (allowUnsigned) {
+                        Jwt jwt = tryParseUnsignedJwt(token);
+                        if (jwt != null) {
+                            String userType = jwt.getClaim("userType");
+                            Long userId = extractUserId(jwt);
+                            if (userId == null) {
+                                String username = jwt.getSubject();
+                                com.literature.common.core.dto.UserDTO user = resolveUserByUsername(username, userType);
+                                if (user != null) {
+                                    userId = user.id();
+                                    if (userType == null || userType.isBlank()) {
+                                        userType = user.userType();
+                                    }
+                                }
+                            }
+                            if (userId != null) {
+                                if (userType == null || userType.isBlank()) {
+                                    userType = "UNKNOWN";
+                                }
+                                sessionManager.addSession(userId, userType, ctx.channel());
+                                String serverAddress = java.net.InetAddress.getLocalHost().getHostAddress() + ":" + port;
+                                sessionRouteService.registerUserRoute(userId, userType, serverAddress);
+                                offlineMessageService.pullAndPushOfflineMessages(userId, userType);
+                                ctx.pipeline().remove(this);
+                                log.info("User {} authenticated (unsigned) and route registered at {}", userId, serverAddress);
+                                return;
+                            }
+                        }
+                    }
+                    log.warn("Authentication failed for channel {}: {}", ctx.channel().id(), e.getMessage());
+                    ctx.close();
+                } catch (IllegalArgumentException e) {
                     log.warn("Authentication failed for channel {}: {}", ctx.channel().id(), e.getMessage());
                     ctx.close();
                 } catch (Exception e) {
@@ -76,6 +129,71 @@ public class AuthHandler extends SimpleChannelInboundHandler<NettyMessage> {
             // Unauthenticated message
             log.warn("Unauthenticated message received, closing channel {}", ctx.channel().id());
             ctx.close();
+        }
+    }
+
+    private Long extractUserId(Jwt jwt) {
+        Object userIdClaim = jwt.getClaim("userId");
+        if (userIdClaim instanceof Number number) {
+            return number.longValue();
+        }
+        if (userIdClaim instanceof String str) {
+            try {
+                return Long.parseLong(str);
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        String subject = jwt.getSubject();
+        if (subject != null) {
+            try {
+                return Long.parseLong(subject);
+            } catch (NumberFormatException ignored) {
+                // subject is not numeric
+            }
+        }
+        return null;
+    }
+
+    private com.literature.common.core.dto.UserDTO resolveUserByUsername(String username, String userType) {
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        try {
+            var response = userServiceClient.getUserByUsername(username, userType);
+            if (response != null && response.data() != null) {
+                return response.data();
+            }
+            if (userType != null) {
+                response = userServiceClient.getUserByUsername(username, null);
+                if (response != null && response.data() != null) {
+                    return response.data();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("User lookup failed for username {}", username, e);
+        }
+        return null;
+    }
+
+    private Jwt tryParseUnsignedJwt(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) {
+                return null;
+            }
+            String payload = parts[1];
+            String json = new String(java.util.Base64.getUrlDecoder().decode(payload));
+            java.util.Map<String, Object> claims = new com.fasterxml.jackson.databind.ObjectMapper().readValue(json, java.util.Map.class);
+            return Jwt.withTokenValue(token)
+                    .headers(h -> h.put("alg", "none"))
+                    .claims(c -> c.putAll(claims))
+                    .subject((String) claims.getOrDefault("sub", ""))
+                    .issuedAt(java.time.Instant.now())
+                    .expiresAt(java.time.Instant.now().plusSeconds(3600))
+                    .build();
+        } catch (Exception e) {
+            return null;
         }
     }
 

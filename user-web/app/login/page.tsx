@@ -29,6 +29,10 @@ export default function LoginPage() {
                 username: username.trim(),
                 password,
             })) as LoginResponse;
+            if (!data?.token) {
+                setError("登录响应缺少 token");
+                return;
+            }
             saveLogin(data.token, data.expiresIn);
             router.replace("/chat");
         } catch (err: any) {
